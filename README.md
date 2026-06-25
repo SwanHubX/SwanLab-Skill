@@ -9,7 +9,7 @@ writing tracking code and querying experiment data.
 ## 🚀 Getting Started
 
 ```bash
-npx skills add SwanHubX/SwanLab-Skill
+npx skills add SwanHubX/SwanLab-Skill -y -g
 ```
 
 
