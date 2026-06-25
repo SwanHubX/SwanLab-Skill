@@ -1,0 +1,51 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+*.egg-info/
+.eggs/
+build/
+dist/
+*.egg
+
+# Virtual environments
+.venv/
+venv/
+env/
+ENV/
+
+# IDE / Editors
+.vscode/
+.idea/
+*.swp
+*.swo
+.DS_Store
+
+# Testing / Coverage
+.pytest_cache/
+.coverage
+htmlcov/
+.tox/
+
+# Local playground / scratch
+playground/
+*.log
+
+# Cached query outputs / saved metrics
+*.swanlab.json
+metrics_*.json
+benchmark_*.json
+
+# Credentials
+.netrc
+.swanlab/
+
+# AI Agents
+.claude/
+.omx/
+CLAUDE.md
+AGENTS.md
+CODEBUDDY.md
+.codegraph/
