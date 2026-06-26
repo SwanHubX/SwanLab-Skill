@@ -1,6 +1,11 @@
 # SwanLab-Skill
 
-[![License](https://img.shields.io/badge/license-Apache--2.0-blue)](LICENSE)
+<div style="text-align: center">
+  <p>
+    <a href="https://skillhub.cn/skills/swanlab-skill">🐧 SkillHub</a> |
+    <a href="https://www.modelscope.cn/skills/SwanLab/swanlab-skill">🤖 ModelScope</a>
+  </p>
+</div>
 
 Skills to guide Claude Code, Codex, and other coding agents on using the
 [SwanLab](https://swanlab.cn) AI training experiment tracking platform — both
