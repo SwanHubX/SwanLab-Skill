@@ -12,7 +12,7 @@
 
 > Teach agents to write SwanLab tracking code and query experiment data correctly.
 
-[![SwanLab Website](https://img.shields.io/badge/SwanLab-Website-black?style=flat-square)](https://swanlab.cn/)
+[![SwanLab Website](https://img.shields.io/badge/SwanLab-Website-C21E31?labelColor=black&style=flat-square)](https://swanlab.cn/)
 [![SwanLab Docs](https://img.shields.io/badge/SwanLab-Docs-c4f042?labelColor=black&style=flat-square)](https://docs.swanlab.cn)
 [![ModelScope Skill](https://img.shields.io/badge/ModelScope-Skill-624aff)](https://www.modelscope.cn/skills/SwanLab/swanlab-skill)
 [![Agent Skill](https://img.shields.io/badge/Agent-Skill-7c3aed)](skills/swanlab-skill/SKILL.md)
