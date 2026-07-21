@@ -61,6 +61,8 @@ An experiment (run) is always in one of these states:
 | `CUSTOM` | User-defined metrics logged via `swanlab.log()` (default) |
 | `SYSTEM` | Auto-collected system metrics (CPU, GPU, memory, etc.)    |
 
+> **SDK ≥ 0.9.0**: metric keys are discovered via `swanlab api run series`, whose `--class` option takes the lowercase values `custom` / `system` mapping to these classes. The `column` / `columns` commands (and the data-type filters below) are deprecated for multi-view experiments.
+
 ### Column Data Types
 
 | Type       | Category | Description                         |

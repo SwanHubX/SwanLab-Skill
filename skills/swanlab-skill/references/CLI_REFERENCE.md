@@ -8,6 +8,18 @@ Read `references/SWANLAB_CONCEPTS.md` when you need to understand the data model
 
 ---
 
+## Version Applicability (SDK ≥ 0.9.0)
+
+| Command                      | Applicability                                                                                                                                                                       |
+| ---------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `run series`                 | **Added in SDK `0.9.0`.** The recommended way to list an experiment's metric keys.                                                                                                  |
+| `run column` / `run columns` | **Deprecated since SDK `0.9.0` (multi-view version).** Not applicable to multi-view experiments — use `run series` instead. Only use these for legacy experiments on SDK `< 0.9.0`. |
+| All other commands           | No version restriction.                                                                                                                                                             |
+
+When the installed SDK is `< 0.9.0`, `run series` does not exist — fall back to `run columns` for key discovery.
+
+---
+
 ## Common Options
 
 Every command accepts these global authentication/override options:
@@ -119,35 +131,41 @@ swanlab api run info PATH [--save [FILENAME]] [--host HOST] [--api-key KEY]
 | -------- | -------- | -------------------------------------------------------- |
 | `PATH`   | yes      | Experiment path in `username/project_name/run_id` format |
 
-#### `swanlab api run list`
+#### `swanlab api run list PROJECT_PATH`
 
 List experiments under a project. Paginated by default.
 
 ```bash
-swanlab api run list -p PROJECT_PATH [OPTIONS]
+swanlab api run list PROJECT_PATH [OPTIONS]
 ```
 
-| Option           | Short | Default    | Description                                        |
-| ---------------- | ----- | ---------- | -------------------------------------------------- |
-| `--project_path` | `-p`  | (required) | Project path in `username/project_name` format     |
-| `--page_num`     | `-n`  | 1          | Page number (>= 1)                                 |
-| `--page_size`    | `-s`  | 20         | Page size. One of: 10, 12, 15, 20, 24, 27, 50, 100 |
-| `--all`          |       | false      | Fetch all pages                                    |
-| `--save`         |       | off        | Save output to file                                |
+| Argument       | Required | Description                                    |
+| -------------- | -------- | ---------------------------------------------- |
+| `PROJECT_PATH` | yes      | Project path in `username/project_name` format |
 
-#### `swanlab api run filter -p PROJECT_PATH -f FILTER_QUERY`
+| Option        | Short | Default | Description                                        |
+| ------------- | ----- | ------- | -------------------------------------------------- |
+| `--page_num`  | `-n`  | 1       | Page number (>= 1)                                 |
+| `--page_size` | `-s`  | 20      | Page size. One of: 10, 12, 15, 20, 24, 27, 50, 100 |
+| `--all`       |       | false   | Fetch all pages                                    |
+| `--save`      |       | off     | Save output to file                                |
+
+#### `swanlab api run filter PROJECT_PATH -f FILTER_QUERY`
 
 Filter experiments under a project by a structured query. Returns matching experiments without pagination.
 
 See `references/SWANLAB_CONCEPTS.md > Filter Query` for the full filter object structure, supported types, operators, and constraints.
 
 ```bash
-swanlab api run filter -p PROJECT_PATH -f FILTER_QUERY [--save [FILENAME]] [--host HOST] [--api-key KEY]
+swanlab api run filter PROJECT_PATH -f FILTER_QUERY [--save [FILENAME]] [--host HOST] [--api-key KEY]
 ```
+
+| Argument       | Required | Description                                    |
+| -------------- | -------- | ---------------------------------------------- |
+| `PROJECT_PATH` | yes      | Project path in `username/project_name` format |
 
 | Option           | Short | Default    | Description                                                     |
 | ---------------- | ----- | ---------- | --------------------------------------------------------------- |
-| `--project_path` | `-p`  | (required) | Project path in `username/project_name` format                  |
 | `--filter_query` | `-f`  | (required) | Filter query as an inline JSON string or path to a `.json` file |
 | `--save`         |       | off        | Save output to file                                             |
 
@@ -155,15 +173,54 @@ swanlab api run filter -p PROJECT_PATH -f FILTER_QUERY [--save [FILENAME]] [--ho
 
 ```bash
 # Filter by state
-swanlab api run filter -p user/project -f '[{"key":"state","type":"STABLE","op":"EQ","value":["FINISHED"]}]'
+swanlab api run filter user/project -f '[{"key":"state","type":"STABLE","op":"EQ","value":["FINISHED"]}]'
 
 # From a JSON file
-swanlab api run filter -p user/project -f ./filters.json
+swanlab api run filter user/project -f ./filters.json
 ```
 
 For full filter syntax, operators, and advanced examples (config, scalar, time range, multi-condition), see `SWANLAB_CONCEPTS.md > Filter Query`.
 
+#### `swanlab api run series PATH`
+
+> **SDK ≥ 0.9.0.** Recommended replacement for the deprecated `column` / `columns` commands.
+
+List an experiment's metric keys, with optional filters by metric type, class, and keyword.
+
+```bash
+swanlab api run series PATH [OPTIONS]
+```
+
+| Argument | Required | Description                                              |
+| -------- | -------- | -------------------------------------------------------- |
+| `PATH`   | yes      | Experiment path in `username/project_name/run_id` format |
+
+| Option     | Short | Default  | Description                                                                     |
+| ---------- | ----- | -------- | ------------------------------------------------------------------------------- |
+| `--type`   |       | `scalar` | Metric type: `scalar` or `media`                                                |
+| `--class`  |       | `custom` | Metric class: `custom` or `system` (see `SWANLAB_CONCEPTS.md > Column Classes`) |
+| `--search` |       | none     | Fuzzy search keyword (case-insensitive substring match on key names)            |
+| `--save`   |       | off      | Save output to file                                                             |
+
+**Quick examples:**
+
+```bash
+# List all custom scalar keys
+swanlab api run series user/project/run_id
+
+# Fuzzy search
+swanlab api run series user/project/run_id --search loss
+
+# System metrics (CPU, GPU, memory, ...)
+swanlab api run series user/project/run_id --class system
+
+# Media metric keys
+swanlab api run series user/project/run_id --type media
+```
+
 #### `swanlab api run columns PATH`
+
+> **⚠️ DEPRECATED since SDK `0.9.0` (multi-view version).** Not applicable to multi-view experiments — use [`run series`](#swanlab-api-run-series-path) instead. Only use this for legacy experiments on SDK `< 0.9.0`.
 
 List columns (metric definitions) under an experiment.
 
@@ -192,6 +249,8 @@ swanlab api run columns PATH [OPTIONS]
 > - **Resumed experiments have no system columns.** When an experiment is resumed via `swanlab.init(resume=...)`, system metrics (hardware monitoring) are not re-collected, so `--class SYSTEM` will return an empty list.
 
 #### `swanlab api run column PATH --key KEY`
+
+> **⚠️ DEPRECATED since SDK `0.9.0` (multi-view version).** Not applicable to multi-view experiments — use [`run series`](#swanlab-api-run-series-path) instead. Only use this for legacy experiments on SDK `< 0.9.0`.
 
 Get a single column by key name.
 
@@ -427,7 +486,7 @@ swanlab api self-hosted summary [--save [FILENAME]] [--host HOST] [--api-key KEY
 ## Behavioral Constraints
 
 - **Use `--all` only when the user explicitly asks for it.** This flag bypasses pagination and fetches the entire dataset in one go, which puts heavy load on the database. For paginated list commands, always use default pagination (`--page_num` / `--page_size`). Only add `--all` when the user says something like "fetch all", "get everything", or "I want the complete list".
-- **Always ask the user for specific column keys before running `run metrics`, `run medias`, or `run column`.** These commands accept a `--keys` or `--key` parameter. Querying without a specific key forces the server to scan and return data for all columns, which is expensive. If the user doesn't know the key names, first run `run columns PATH` to list available columns, then use the returned keys for targeted queries. Always discover key names from `run columns` output before querying specific metrics.
+- **Always ask the user for specific metric keys before running `run metrics` or `run medias`.** These commands accept a `--keys` parameter. Querying without a specific key forces the server to scan and return data for all metrics, which is expensive. If the user doesn't know the key names, first run `run series PATH` to list available keys, then use the returned keys for targeted queries. Always discover key names from `run series` output before querying specific metrics. (On SDK `< 0.9.0` where `run series` does not exist, fall back to `run columns PATH`.)
 - **Always add `--ignore-timestamp` for `run metrics` and `run logs`.** Unless the user specifically asks to keep timestamps, include this flag by default. It produces cleaner, more readable output by removing Unix timestamps from every data point.
 - All output is JSON to stdout. Pipe to `jq` or similar tools for further processing.
 - `--save` without a filename auto-generates `swanlab-YYYYMMDD_HHMMSS-xxxx.json` in the current directory.

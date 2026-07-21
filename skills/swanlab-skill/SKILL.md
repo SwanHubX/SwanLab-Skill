@@ -1,11 +1,11 @@
 ---
 name: swanlab-skill
 metadata:
-  version: "0.1.2"
+  version: "0.2.0"
 description: >
   Interact with SwanLab — both writing tracking code (init/log/finish/multimedia) and querying
   experiment data via CLI (`swanlab api`). Use this skill when the user wants to write training
-  tracking code, log metrics or media, manage experiments, inspect metrics/logs/columns, list
+  tracking code, log metrics or media, manage experiments, inspect metrics/logs/keys, list
   projects/runs, filter experiments, manage self-hosted users, automate queries via CLI, or
   mentions "swanlab", "experiment tracking", "log metrics", "swanlab api", "swanlab cli".
 ---
@@ -27,6 +27,8 @@ SwanLab is an AI training experiment tracking platform. This skill covers two us
 | Query data via CLI (metrics/summary/logs/filter/etc.) | `references/CLI_REFERENCE.md`    |
 | Understand data model / terminology / filter syntax   | `references/SWANLAB_CONCEPTS.md` |
 | Plot metrics or compare experiments visually          | See **Scripts** below            |
+
+> **Version note (SDK ≥ 0.9.0)**: use `swanlab api run series` to discover an experiment's metric keys. `run column` / `run columns` are deprecated since `0.9.0` and do not apply to multi-view experiments — only fall back to them when the installed SDK is `< 0.9.0`. See `CLI_REFERENCE.md > Version Applicability`.
 
 ---
 
@@ -93,7 +95,7 @@ CLI commands use `username/project_name` (project) or `username/project_name/run
 | "plot metric chart"                          | Single-experiment chart | `scripts/plot_metrics.py`        |
 | "experiment config"                          | Hyperparameters         | `CLI_REFERENCE.md > run info`    |
 | "console output"                             | Captured logs           | `CLI_REFERENCE.md > run logs`    |
-| "what columns are tracked"                   | Metric definitions      | `CLI_REFERENCE.md > run columns` |
+| "what metrics are tracked"                   | Metric keys             | `CLI_REFERENCE.md > run series`  |
 | "check connectivity" / "can I reach swanlab" | Environment check       | `swanlab ping`                   |
 | "check login status" / "am I logged in"      | Verify credentials      | `swanlab verify`                 |
 
@@ -140,7 +142,7 @@ swanlab verify --local
 See `CLI_REFERENCE.md > Behavioral Constraints` for the full list. Key rules:
 
 - **Use `--all` only when the user explicitly asks for it** (e.g. "fetch all", "get everything", "complete list"). For paginated list commands, always use default pagination (`--page_num` / `--page_size`).
-- **Always ask for specific column keys before running `run metrics`, `run medias`, or `run column`.** If the user doesn't know the key names, first run `run columns PATH` to discover them.
+- **Always ask for specific metric keys before running `run metrics` or `run medias`.** If the user doesn't know the key names, first run `run series PATH` to discover them (`run columns PATH` only as a fallback on SDK `< 0.9.0`).
 - **Always persist large metric data to file via `--save`**, then visualize with `scripts/plot_metrics.py --data file.json` or use `run summary` for aggregate stats.
 
 ---
