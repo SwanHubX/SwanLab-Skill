@@ -34,7 +34,6 @@ import matplotlib
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 import numpy as np
-
 from swanlab.api import Api
 
 # ---------------------------------------------------------------------------
@@ -53,7 +52,9 @@ def fetch_metrics(
     api = Api(api_key=api_key, host=host)
     experiment = api.run(path)
     if not experiment.run_id:
-        raise ValueError(f"Failed to fetch experiment at path '{path}'. Please verify the path and credentials.")
+        raise ValueError(
+            f"Failed to fetch experiment at path '{path}'. Please verify the path and credentials."
+        )
     return experiment.metrics(keys=keys, sample=sample, ignore_timestamp=True)
 
 
@@ -67,7 +68,9 @@ def fetch_summary(
     api = Api(api_key=api_key, host=host)
     experiment = api.run(path)
     if not experiment.run_id:
-        raise ValueError(f"Failed to fetch experiment at path '{path}'. Please verify the path and credentials.")
+        raise ValueError(
+            f"Failed to fetch experiment at path '{path}'. Please verify the path and credentials."
+        )
     return experiment.summary(keys=keys)
 
 
@@ -76,7 +79,9 @@ def fetch_summary(
 # ---------------------------------------------------------------------------
 
 
-def extract_series(metric_data: Dict[str, Any], key: str) -> Tuple[List[int], List[float]]:
+def extract_series(
+    metric_data: Dict[str, Any], key: str
+) -> Tuple[List[int], List[float]]:
     """
     Extract (steps, values) for a single metric key.
 
@@ -171,7 +176,9 @@ def plot_line_chart(
     ncols = min(n, 2)
     nrows = math.ceil(n / ncols)
 
-    fig, axes = plt.subplots(nrows, ncols, figsize=(7 * ncols, 4.5 * nrows), squeeze=False)
+    fig, axes = plt.subplots(
+        nrows, ncols, figsize=(7 * ncols, 4.5 * nrows), squeeze=False
+    )
     fig.suptitle(title or "SwanLab Metrics", fontsize=14, fontweight="bold", y=0.98)
 
     for idx, key in enumerate(keys):
@@ -182,7 +189,16 @@ def plot_line_chart(
 
         if not steps:
             ax.set_title(key, fontsize=11)
-            ax.text(0.5, 0.5, "No data", ha="center", va="center", transform=ax.transAxes, fontsize=12, color="gray")
+            ax.text(
+                0.5,
+                0.5,
+                "No data",
+                ha="center",
+                va="center",
+                transform=ax.transAxes,
+                fontsize=12,
+                color="gray",
+            )
             ax.set_xlabel("step")
             ax.set_ylabel(key)
             continue
@@ -240,17 +256,35 @@ def parse_args() -> argparse.Namespace:
         help="Experiment path: username/project_name/run_id (optional when --data is used)",
     )
     parser.add_argument(
-        "--data", default=None, help="Path to a JSON file with pre-fetched metric data. Skips API calls entirely."
+        "--data",
+        default=None,
+        help="Path to a JSON file with pre-fetched metric data. Skips API calls entirely.",
     )
-    parser.add_argument("--keys", "-k", required=True, help="Comma-separated metric keys, e.g. 'loss,acc'")
-    parser.add_argument("--sample", "-s", type=int, default=1500, help="Sample size (default: 1500)")
     parser.add_argument(
-        "--output", "-o", default="metrics_chart.png", help="Output image path (default: metrics_chart.png)"
+        "--keys",
+        "-k",
+        required=True,
+        help="Comma-separated metric keys, e.g. 'loss,acc'",
     )
-    parser.add_argument("--title", "-t", default=None, help="Chart title (default: auto)")
+    parser.add_argument(
+        "--sample", "-s", type=int, default=1500, help="Sample size (default: 1500)"
+    )
+    parser.add_argument(
+        "--output",
+        "-o",
+        default="metrics_chart.png",
+        help="Output image path (default: metrics_chart.png)",
+    )
+    parser.add_argument(
+        "--title", "-t", default=None, help="Chart title (default: auto)"
+    )
     parser.add_argument("--dpi", type=int, default=150, help="Image DPI (default: 150)")
-    parser.add_argument("--api-key", default=None, help="SwanLab API key (or use swanlab login)")
-    parser.add_argument("--host", default=None, help="SwanLab API host URL (for self-hosted)")
+    parser.add_argument(
+        "--api-key", default=None, help="SwanLab API key (or use swanlab login)"
+    )
+    parser.add_argument(
+        "--host", default=None, help="SwanLab API host URL (for self-hosted)"
+    )
     return parser.parse_args()
 
 
@@ -263,7 +297,10 @@ def main() -> None:
         sys.exit(1)
 
     if not args.path and not args.data:
-        print("Error: provide either a PATH argument or --data <json_file>.", file=sys.stderr)
+        print(
+            "Error: provide either a PATH argument or --data <json_file>.",
+            file=sys.stderr,
+        )
         sys.exit(1)
 
     if args.data:
