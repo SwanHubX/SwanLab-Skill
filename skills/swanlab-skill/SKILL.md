@@ -21,12 +21,12 @@ SwanLab is an AI training experiment tracking platform. This skill covers two us
 
 ## Reference Routing
 
-| If the user wants to... | Read this reference |
-|---|---|
-| Write tracking code (init/log/finish/media) | `references/SDK_QUICKSTART.md` |
-| Query data via CLI (metrics/summary/logs/filter/etc.) | `references/CLI_REFERENCE.md` |
-| Understand data model / terminology / filter syntax | `references/SWANLAB_CONCEPTS.md` |
-| Plot metrics or compare experiments visually | See **Scripts** below |
+| If the user wants to...                               | Read this reference              |
+| ----------------------------------------------------- | -------------------------------- |
+| Write tracking code (init/log/finish/media)           | `references/SDK_QUICKSTART.md`   |
+| Query data via CLI (metrics/summary/logs/filter/etc.) | `references/CLI_REFERENCE.md`    |
+| Understand data model / terminology / filter syntax   | `references/SWANLAB_CONCEPTS.md` |
+| Plot metrics or compare experiments visually          | See **Scripts** below            |
 
 ---
 
@@ -34,12 +34,12 @@ SwanLab is an AI training experiment tracking platform. This skill covers two us
 
 `swanlab.init(mode=...)` controls where data goes:
 
-| Mode | Local Storage | Cloud Upload | Use Case |
-|------|--------------|-------------|----------|
-| `online` | Yes (protobuf) | Yes (Transport → HTTP) | Normal cloud usage. Requires login. |
-| `local` | Yes (protobuf) | No | Air-gapped / no account needed. |
-| `offline` | Yes (protobuf) | No (syncable later via `swanlab sync`) | Save locally, upload to cloud later. |
-| `disabled` | No | No | Completely disable all logging. |
+| Mode       | Local Storage  | Cloud Upload                           | Use Case                             |
+| ---------- | -------------- | -------------------------------------- | ------------------------------------ |
+| `online`   | Yes (protobuf) | Yes (Transport → HTTP)                 | Normal cloud usage. Requires login.  |
+| `local`    | Yes (protobuf) | No                                     | Air-gapped / no account needed.      |
+| `offline`  | Yes (protobuf) | No (syncable later via `swanlab sync`) | Save locally, upload to cloud later. |
+| `disabled` | No             | No                                     | Completely disable all logging.      |
 
 Default is `online` if logged in, otherwise the user is prompted interactively (or falls back to `offline`).
 
@@ -82,20 +82,20 @@ CLI commands use `username/project_name` (project) or `username/project_name/run
 
 ## Quick Disambiguation
 
-| User says... | They probably mean... | Route |
-|---|---|---|
-| "track my training" / "log metrics" | Write tracking code | `SDK_QUICKSTART.md` |
-| "log images/audio/text" | Log media data | `SDK_QUICKSTART.md` |
-| "my loss curve" / "experiment metrics" | Query scalar data | `CLI_REFERENCE.md > run metrics` |
-| "filter experiments" | Query by conditions | `CLI_REFERENCE.md > run filter` |
-| "my experiments" / "list runs" | List experiments | `CLI_REFERENCE.md > run list` |
-| "compare runs visually" | Cross-experiment chart | `scripts/runs_benchmark.py` |
-| "plot metric chart" | Single-experiment chart | `scripts/plot_metrics.py` |
-| "experiment config" | Hyperparameters | `CLI_REFERENCE.md > run info` |
-| "console output" | Captured logs | `CLI_REFERENCE.md > run logs` |
-| "what columns are tracked" | Metric definitions | `CLI_REFERENCE.md > run columns` |
-| "check connectivity" / "can I reach swanlab" | Environment check | `swanlab ping` |
-| "check login status" / "am I logged in" | Verify credentials | `swanlab verify` |
+| User says...                                 | They probably mean...   | Route                            |
+| -------------------------------------------- | ----------------------- | -------------------------------- |
+| "track my training" / "log metrics"          | Write tracking code     | `SDK_QUICKSTART.md`              |
+| "log images/audio/text"                      | Log media data          | `SDK_QUICKSTART.md`              |
+| "my loss curve" / "experiment metrics"       | Query scalar data       | `CLI_REFERENCE.md > run metrics` |
+| "filter experiments"                         | Query by conditions     | `CLI_REFERENCE.md > run filter`  |
+| "my experiments" / "list runs"               | List experiments        | `CLI_REFERENCE.md > run list`    |
+| "compare runs visually"                      | Cross-experiment chart  | `scripts/runs_benchmark.py`      |
+| "plot metric chart"                          | Single-experiment chart | `scripts/plot_metrics.py`        |
+| "experiment config"                          | Hyperparameters         | `CLI_REFERENCE.md > run info`    |
+| "console output"                             | Captured logs           | `CLI_REFERENCE.md > run logs`    |
+| "what columns are tracked"                   | Metric definitions      | `CLI_REFERENCE.md > run columns` |
+| "check connectivity" / "can I reach swanlab" | Environment check       | `swanlab ping`                   |
+| "check login status" / "am I logged in"      | Verify credentials      | `swanlab verify`                 |
 
 ---
 

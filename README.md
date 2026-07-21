@@ -29,7 +29,13 @@
 
 ## 安装
 
-推荐使用全局安装方式：
+如果你正在使用 Claude Code、Codex 等 coding agent，直接将下面这段话发给它即可自动完成安装：
+
+```text
+Fetch the installation guide and follow it: https://raw.githubusercontent.com/SwanHubX/SwanLab-Skill/main/README.md
+```
+
+手动安装推荐使用全局安装方式：
 
 ```bash
 npx skills add SwanHubX/SwanLab-Skill -g -y
@@ -69,26 +75,26 @@ skills/
         └── runs_benchmark.py
 ```
 
-| 文件 | 作用 |
-|---|---|
-| `SKILL.md` | 轻量入口和任务路由，告诉 Agent 应该读 SDK 文档还是 CLI 文档 |
-| `references/SDK_QUICKSTART.md` | `swanlab.init` / `log` / `finish` 与 image / audio / text 等多媒体记录写法 |
-| `references/CLI_REFERENCE.md` | `swanlab api` 查询指标、日志、摘要、列、媒体与筛选实验 |
-| `references/SWANLAB_CONCEPTS.md` | 数据模型、术语与路径约定（`user/project/run_id`） |
-| `scripts/plot_metrics.py` | 单个实验标量指标折线图 |
-| `scripts/runs_benchmark.py` | 跨实验对比同一指标（归一化 + 最优 run 排名） |
+| 文件                             | 作用                                                                       |
+| -------------------------------- | -------------------------------------------------------------------------- |
+| `SKILL.md`                       | 轻量入口和任务路由，告诉 Agent 应该读 SDK 文档还是 CLI 文档                |
+| `references/SDK_QUICKSTART.md`   | `swanlab.init` / `log` / `finish` 与 image / audio / text 等多媒体记录写法 |
+| `references/CLI_REFERENCE.md`    | `swanlab api` 查询指标、日志、摘要、列、媒体与筛选实验                     |
+| `references/SWANLAB_CONCEPTS.md` | 数据模型、术语与路径约定（`user/project/run_id`）                          |
+| `scripts/plot_metrics.py`        | 单个实验标量指标折线图                                                     |
+| `scripts/runs_benchmark.py`      | 跨实验对比同一指标（归一化 + 最优 run 排名）                               |
 
 ## 能力
 
-| 能力 | 方式 | 入口 |
-| --- | --- | --- |
-| 训练 / 微调中记录指标与富媒体（image / audio / text） | Python SDK | `references/SDK_QUICKSTART.md` |
-| 查看某个 run 的指标、日志、摘要、列与媒体 | `swanlab api run ...` CLI | `references/CLI_REFERENCE.md` |
-| 按 config 或 summary 条件筛选实验 | `swanlab api run filter` CLI | `references/CLI_REFERENCE.md` |
-| 管理项目、私有化用户等资源 | `swanlab api project / user` CLI | `references/CLI_REFERENCE.md` |
-| 查询前理解数据模型与术语 | — | `references/SWANLAB_CONCEPTS.md` |
-| 画**单个**实验的标量指标折线图 | 辅助脚本 | `scripts/plot_metrics.py user/proj/run -k loss,acc -o chart.png` |
-| **对比**多个实验的同一指标（归一化 + 排名） | 辅助脚本 | `scripts/runs_benchmark.py user/proj/r1 user/proj/r2 -k loss --direction lower` |
+| 能力                                                              | 方式                             | 入口                                                                            |
+| ----------------------------------------------------------------- | -------------------------------- | ------------------------------------------------------------------------------- |
+| 训练 / 微调中记录指标与媒体等对象资源文件（image / audio / text） | Python SDK                       | `references/SDK_QUICKSTART.md`                                                  |
+| 查看某个 run 的指标、日志、摘要、列与媒体                         | `swanlab api run ...` CLI        | `references/CLI_REFERENCE.md`                                                   |
+| 按 config 或 summary 条件筛选实验                                 | `swanlab api run filter` CLI     | `references/CLI_REFERENCE.md`                                                   |
+| 管理项目、私有化用户等资源                                        | `swanlab api project / user` CLI | `references/CLI_REFERENCE.md`                                                   |
+| 查询前理解数据模型与术语                                          | —                                | `references/SWANLAB_CONCEPTS.md`                                                |
+| 画**单个**实验的标量指标折线图                                    | 辅助脚本                         | `scripts/plot_metrics.py user/proj/run -k loss,acc -o chart.png`                |
+| **对比**多个实验的同一指标（归一化 + 排名）                       | 辅助脚本                         | `scripts/runs_benchmark.py user/proj/r1 user/proj/r2 -k loss --direction lower` |
 
 两个辅助脚本都支持 `--data file.json` 从已保存的查询结果渲染，并要求先 `swanlab login`（或传 `--api-key` / `--host`）。
 
@@ -96,12 +102,12 @@ skills/
 
 `swanlab.init(mode=...)` 控制数据去向：
 
-| Mode       | 本地存储 | 云端上传 | 适用场景                                   |
-| ---------- | -------- | -------- | ------------------------------------------ |
-| `online`   | Yes      | Yes      | 正常云端使用，需要登录                     |
-| `local`    | Yes      | No       | 离线环境，无需账号                         |
-| `offline`  | Yes      | No       | 先存本地，之后用 `swanlab sync` 上传       |
-| `disabled` | No       | No       | 完全关闭记录                               |
+| Mode       | 本地存储 | 云端上传 | 适用场景                             |
+| ---------- | -------- | -------- | ------------------------------------ |
+| `online`   | Yes      | Yes      | 正常云端使用，需要登录               |
+| `local`    | Yes      | No       | 离线环境，无需账号                   |
+| `offline`  | Yes      | No       | 先存本地，之后用 `swanlab sync` 上传 |
+| `disabled` | No       | No       | 完全关闭记录                         |
 
 ## 打包
 

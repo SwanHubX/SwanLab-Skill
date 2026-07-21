@@ -29,14 +29,14 @@ User (authenticated account)
 
 ### Entity Reference
 
-| Entity | Identified by | Description |
-|--------|--------------|-------------|
-| **User** | implicit (logged-in) | The authenticated account. Has `username`, `name`, `bio`, `email`, etc. |
-| **Workspace** | `username` | A personal or team namespace. Type is `PERSON` or `TEAM`. Every project belongs to a workspace. |
-| **Project** | `username/project_name` (path) | Groups related experiments. Has visibility (`PUBLIC` / `PRIVATE`), description, labels. |
+| Entity               | Identified by                         | Description                                                                                                      |
+| -------------------- | ------------------------------------- | ---------------------------------------------------------------------------------------------------------------- |
+| **User**             | implicit (logged-in)                  | The authenticated account. Has `username`, `name`, `bio`, `email`, etc.                                          |
+| **Workspace**        | `username`                            | A personal or team namespace. Type is `PERSON` or `TEAM`. Every project belongs to a workspace.                  |
+| **Project**          | `username/project_name` (path)        | Groups related experiments. Has visibility (`PUBLIC` / `PRIVATE`), description, labels.                          |
 | **Experiment (Run)** | `username/project_name/run_id` (path) | The atomic unit — one execution of training code. Created by `swanlab.init()`. Has state, config, metrics, logs. |
-| **Column** | `key` within an experiment | A metric definition. Belongs to either `CUSTOM` (user-defined) or `SYSTEM` (auto-collected). Has a data type. |
-| **Metric** | queried via column key | The actual time-series data for a column. Three categories: Scalar, Media, Log. |
+| **Column**           | `key` within an experiment            | A metric definition. Belongs to either `CUSTOM` (user-defined) or `SYSTEM` (auto-collected). Has a data type.    |
+| **Metric**           | queried via column key                | The actual time-series data for a column. Three categories: Scalar, Media, Log.                                  |
 
 ---
 
@@ -46,43 +46,43 @@ User (authenticated account)
 
 An experiment (run) is always in one of these states:
 
-| State | Meaning |
-|-------|---------|
-| `RUNNING` | Currently executing |
-| `FINISHED` | Completed successfully |
-| `CRASHED` | Terminated due to an error |
-| `ABORTED` | Manually stopped by the user |
-| `OFFLINE` | Created in offline mode, not yet synced |
+| State      | Meaning                                 |
+| ---------- | --------------------------------------- |
+| `RUNNING`  | Currently executing                     |
+| `FINISHED` | Completed successfully                  |
+| `CRASHED`  | Terminated due to an error              |
+| `ABORTED`  | Manually stopped by the user            |
+| `OFFLINE`  | Created in offline mode, not yet synced |
 
 ### Column Classes
 
-| Class | Description |
-|-------|-------------|
+| Class    | Description                                               |
+| -------- | --------------------------------------------------------- |
 | `CUSTOM` | User-defined metrics logged via `swanlab.log()` (default) |
-| `SYSTEM` | Auto-collected system metrics (CPU, GPU, memory, etc.) |
+| `SYSTEM` | Auto-collected system metrics (CPU, GPU, memory, etc.)    |
 
 ### Column Data Types
 
-| Type | Category | Description |
-|------|----------|-------------|
-| `FLOAT` | Scalar | Floating-point numeric values |
-| `BOOLEAN` | Scalar | True/false values |
-| `STRING` | Scalar | Text values |
-| `IMAGE` | Media | Image files (PNG, JPG, etc.) |
-| `AUDIO` | Media | Audio files |
-| `VIDEO` | Media | Video files |
-| `OBJECT3D` | Media | 3D point cloud data (JSON) |
-| `MOLECULE` | Media | Biochemical molecule structures |
-| `ECHARTS` | Media | Custom chart configurations (JS/TS) |
-| `TABLE` | Media | Tabular data |
-| `TEXT` | Media | Rich text content |
+| Type       | Category | Description                         |
+| ---------- | -------- | ----------------------------------- |
+| `FLOAT`    | Scalar   | Floating-point numeric values       |
+| `BOOLEAN`  | Scalar   | True/false values                   |
+| `STRING`   | Scalar   | Text values                         |
+| `IMAGE`    | Media    | Image files (PNG, JPG, etc.)        |
+| `AUDIO`    | Media    | Audio files                         |
+| `VIDEO`    | Media    | Video files                         |
+| `OBJECT3D` | Media    | 3D point cloud data (JSON)          |
+| `MOLECULE` | Media    | Biochemical molecule structures     |
+| `ECHARTS`  | Media    | Custom chart configurations (JS/TS) |
+| `TABLE`    | Media    | Tabular data                        |
+| `TEXT`     | Media    | Rich text content                   |
 
 ### Project Visibility
 
-| Visibility | Description |
-|------------|-------------|
-| `PRIVATE` | Only accessible to workspace members (default) |
-| `PUBLIC` | Visible to anyone |
+| Visibility | Description                                    |
+| ---------- | ---------------------------------------------- |
+| `PRIVATE`  | Only accessible to workspace members (default) |
+| `PUBLIC`   | Visible to anyone                              |
 
 ---
 
@@ -127,14 +127,14 @@ Structure per data point:
 
 **Range Query** (client-side CSV filtering): When you need only a subset of scalar data points, use range query options to download the full CSV and filter client-side:
 
-| Option | Default | Description |
-|--------|---------|-------------|
-| `--range-type` | `step` | Filter axis: `step` (by step number) or `timestamp` (by Unix timestamp in **milliseconds**) |
-| `--range-start` | none | Start value, inclusive (int ≥ 0) |
-| `--range-end` | none | End value, inclusive (int ≥ 0) |
-| `--range-head` | none | First N data points (int ≥ 1). Mutually exclusive with `--range-tail` |
-| `--range-tail` | none | Last N data points (int ≥ 1). Mutually exclusive with `--range-head` |
-| `--range-last` | none | Last N milliseconds of data (int > 0). Mutually exclusive with `--range-start`/`--range-end`. Can combine with `--range-head`/`--range-tail`. |
+| Option          | Default | Description                                                                                                                                   |
+| --------------- | ------- | --------------------------------------------------------------------------------------------------------------------------------------------- |
+| `--range-type`  | `step`  | Filter axis: `step` (by step number) or `timestamp` (by Unix timestamp in **milliseconds**)                                                   |
+| `--range-start` | none    | Start value, inclusive (int ≥ 0)                                                                                                              |
+| `--range-end`   | none    | End value, inclusive (int ≥ 0)                                                                                                                |
+| `--range-head`  | none    | First N data points (int ≥ 1). Mutually exclusive with `--range-tail`                                                                         |
+| `--range-tail`  | none    | Last N data points (int ≥ 1). Mutually exclusive with `--range-head`                                                                          |
+| `--range-last`  | none    | Last N milliseconds of data (int > 0). Mutually exclusive with `--range-start`/`--range-end`. Can combine with `--range-head`/`--range-tail`. |
 
 - `--range-head` and `--range-tail` are mutually exclusive, acted as post-sampling.
 - `--range-last` is mutually exclusive with `--range-start`/`--range-end`.
@@ -209,10 +209,10 @@ Structure per log entry:
 
 Console logs can be bulk-exported as a downloadable `.log` file via a presigned URL. This is distinct from shard-based log viewing — export retrieves raw log rows by row index range.
 
-| Parameter | Default | Description |
-|-----------|---------|-------------|
-| `start` | 0 | Start row index (0-based) |
-| `rows` | 500,000 | Number of rows to export (max 500,000) |
+| Parameter | Default | Description                            |
+| --------- | ------- | -------------------------------------- |
+| `start`   | 0       | Start row index (0-based)              |
+| `rows`    | 500,000 | Number of rows to export (max 500,000) |
 
 The API returns a presigned download URL (`{"url": "https://..."}`) that is valid for a limited time. No file content is downloaded by the CLI — only the URL is returned.
 
@@ -244,6 +244,7 @@ Each experiment carries a `profile` object containing metadata about the run:
 SwanLab can be deployed as a self-hosted instance (private deployment). **Use `swanlab api self-hosted` subcommands exclusively on self-hosted deployments. Always verify the host points to a private server before invoking these commands.**
 
 **Host detection rule**: Before using any self-hosted command, check where requests will be sent:
+
 1. If the user passes `--host` explicitly → use that value.
 2. Otherwise, check `SWANLAB_API_HOST` / `SWANLAB_WEB_HOST` environment variables.
 3. Otherwise, check `.netrc` or SwanLab config (`~/.swanlab`).
@@ -252,13 +253,13 @@ Self-hosted commands only succeed on self-hosted deployments. Always confirm the
 
 Self-hosted-specific features:
 
-| Property | Description |
-|----------|-------------|
-| `enabled` | Whether this is a self-hosted deployment |
-| `expired` | Whether the license has expired |
-| `root` | Whether the current user is a root (admin) |
-| `plan` | License plan: `free` or `commercial` |
-| `seats` | Number of allowed user seats |
+| Property  | Description                                |
+| --------- | ------------------------------------------ |
+| `enabled` | Whether this is a self-hosted deployment   |
+| `expired` | Whether the license has expired            |
+| `root`    | Whether the current user is a root (admin) |
+| `plan`    | License plan: `free` or `commercial`       |
+| `seats`   | Number of allowed user seats               |
 
 Management operations (create user, list users, list projects, list workspaces, summary) all require root privileges. If a non-root user attempts any of these, the API returns a permission error.
 
@@ -266,24 +267,24 @@ Management operations (create user, list users, list projects, list workspaces, 
 
 On a self-hosted deployment, the root (admin) user can query across the entire instance, not just within a single workspace:
 
-| Operation | Root Required | Description |
-|-----------|---------------|-------------|
-| Create User | Yes | Add a new user to the instance |
-| List Users | Yes | All registered users across the instance |
-| List Projects | Yes | All projects across all workspaces, with optional filters for creator, workspace, and keyword |
-| List Workspaces | Yes | All workspaces (personal + team) on the instance, with optional keyword search |
-| Usage Summary | Yes | Aggregate statistics: total users, projects, experiments, storage, etc. |
+| Operation       | Root Required | Description                                                                                   |
+| --------------- | ------------- | --------------------------------------------------------------------------------------------- |
+| Create User     | Yes           | Add a new user to the instance                                                                |
+| List Users      | Yes           | All registered users across the instance                                                      |
+| List Projects   | Yes           | All projects across all workspaces, with optional filters for creator, workspace, and keyword |
+| List Workspaces | Yes           | All workspaces (personal + team) on the instance, with optional keyword search                |
+| Usage Summary   | Yes           | Aggregate statistics: total users, projects, experiments, storage, etc.                       |
 
 This differs from the regular `project list` / `workspace info` commands, which are scoped to a single workspace. Instance-level queries have a global view.
 
 ### Quick Disambiguation (Self-Hosted)
 
-| User says... | They probably mean... | CLI command |
-|---|---|---|
-| "all projects on the server" | Instance-wide project listing | `swanlab api self-hosted list-projects` |
-| "all workspaces" | Instance-wide workspace listing | `swanlab api self-hosted list-workspaces` |
-| "server usage / disk usage" | Usage summary | `swanlab api self-hosted summary` |
-| "all users on the server" | Instance-wide user listing | `swanlab api self-hosted list-users` |
+| User says...                 | They probably mean...           | CLI command                               |
+| ---------------------------- | ------------------------------- | ----------------------------------------- |
+| "all projects on the server" | Instance-wide project listing   | `swanlab api self-hosted list-projects`   |
+| "all workspaces"             | Instance-wide workspace listing | `swanlab api self-hosted list-workspaces` |
+| "server usage / disk usage"  | Usage summary                   | `swanlab api self-hosted summary`         |
+| "all users on the server"    | Instance-wide user listing      | `swanlab api self-hosted list-users`      |
 
 ---
 
@@ -306,57 +307,58 @@ Each filter object must contain four fields:
 }
 ```
 
-| Field | Type | Required | Description |
-|-------|------|----------|-------------|
-| `key` | string | yes | The field name to filter on |
-| `type` | string | yes | Sidebar type: `STABLE`, `CONFIG`, or `SCALAR` |
-| `op` | string | yes | Filter operator |
-| `value` | array | yes | Values to compare against (always a list) |
+| Field   | Type   | Required | Description                                   |
+| ------- | ------ | -------- | --------------------------------------------- |
+| `key`   | string | yes      | The field name to filter on                   |
+| `type`  | string | yes      | Sidebar type: `STABLE`, `CONFIG`, or `SCALAR` |
+| `op`    | string | yes      | Filter operator                               |
+| `value` | array  | yes      | Values to compare against (always a list)     |
 
 ### Filter Types (`type`)
 
-| Type | Description | Valid Keys |
-|------|-------------|------------|
-| `STABLE` | Built-in experiment fields (see table below) | `state`, `name`, `description`, `show`, `pin`, `baseline`, `colors`, `cluster`, `job`, `createdAt`, `updatedAt`, `finishedAt`, `pinnedAt`, `labels` |
-| `CONFIG` | Hyperparameters from `swanlab.init(config={...})` | Any key from the config dict, e.g. `learning_rate`, `batch_size` |
-| `SCALAR` | Scalar metrics from `swanlab.log(...)` | Any metric key, e.g. `train/loss`, `val/acc` |
+| Type     | Description                                       | Valid Keys                                                                                                                                          |
+| -------- | ------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `STABLE` | Built-in experiment fields (see table below)      | `state`, `name`, `description`, `show`, `pin`, `baseline`, `colors`, `cluster`, `job`, `createdAt`, `updatedAt`, `finishedAt`, `pinnedAt`, `labels` |
+| `CONFIG` | Hyperparameters from `swanlab.init(config={...})` | Any key from the config dict, e.g. `learning_rate`, `batch_size`                                                                                    |
+| `SCALAR` | Scalar metrics from `swanlab.log(...)`            | Any metric key, e.g. `train/loss`, `val/acc`                                                                                                        |
 
 ### STABLE Keys
 
-| Key | Type | Description |
-|-----|------|-------------|
-| `state` | enum | Experiment state: `RUNNING`, `FINISHED`, `CRASHED`, `ABORTED`, `OFFLINE` |
-| `name` | string | Experiment display name |
-| `description` | string | Experiment description text |
-| `show` | boolean | Whether the experiment is visible in the UI |
-| `pin` | boolean | Whether the experiment is pinned to the top |
-| `baseline` | boolean | Whether this experiment is marked as a baseline for comparison |
-| `colors` | string | Assigned color identifier |
-| `cluster` | string | Experiment group/cluster name |
-| `job` | string | Distributed job type (e.g. `worker`, `master`) |
-| `createdAt` | datetime | Time the experiment was created (UTC+8 on filter, UTC in response) |
-| `updatedAt` | datetime | Time the experiment was last updated (UTC+8 on filter, UTC in response) |
-| `finishedAt` | datetime | Time the experiment finished (UTC+8 on filter, UTC in response) |
-| `pinnedAt` | datetime | Time the experiment was pinned (UTC+8 on filter, UTC in response) |
-| `labels` | array | Tags/labels attached to the experiment |
+| Key           | Type     | Description                                                              |
+| ------------- | -------- | ------------------------------------------------------------------------ |
+| `state`       | enum     | Experiment state: `RUNNING`, `FINISHED`, `CRASHED`, `ABORTED`, `OFFLINE` |
+| `name`        | string   | Experiment display name                                                  |
+| `description` | string   | Experiment description text                                              |
+| `show`        | boolean  | Whether the experiment is visible in the UI                              |
+| `pin`         | boolean  | Whether the experiment is pinned to the top                              |
+| `baseline`    | boolean  | Whether this experiment is marked as a baseline for comparison           |
+| `colors`      | string   | Assigned color identifier                                                |
+| `cluster`     | string   | Experiment group/cluster name                                            |
+| `job`         | string   | Distributed job type (e.g. `worker`, `master`)                           |
+| `createdAt`   | datetime | Time the experiment was created (UTC+8 on filter, UTC in response)       |
+| `updatedAt`   | datetime | Time the experiment was last updated (UTC+8 on filter, UTC in response)  |
+| `finishedAt`  | datetime | Time the experiment finished (UTC+8 on filter, UTC in response)          |
+| `pinnedAt`    | datetime | Time the experiment was pinned (UTC+8 on filter, UTC in response)        |
+| `labels`      | array    | Tags/labels attached to the experiment                                   |
 
 ### Filter Operators (`op`)
 
-| Operator | Meaning | Notes |
-|----------|---------|-------|
-| `EQ` | Equals | Single value |
-| `NEQ` | Not equals | Single value |
-| `GTE` | Greater than or equal | Numeric / date / string comparison |
-| `LTE` | Less than or equal | Numeric / date / string comparison |
-| `IN` | In list | Value is an array of options |
-| `NOT IN` | Not in list | Value is an array of options |
-| `CONTAIN` | Fuzzy contains | Substring / partial match |
+| Operator  | Meaning               | Notes                              |
+| --------- | --------------------- | ---------------------------------- |
+| `EQ`      | Equals                | Single value                       |
+| `NEQ`     | Not equals            | Single value                       |
+| `GTE`     | Greater than or equal | Numeric / date / string comparison |
+| `LTE`     | Less than or equal    | Numeric / date / string comparison |
+| `IN`      | In list               | Value is an array of options       |
+| `NOT IN`  | Not in list           | Value is an array of options       |
+| `CONTAIN` | Fuzzy contains        | Substring / partial match          |
 
 ### Time Fields & Range Queries
 
 Time-type fields (`createdAt`, `updatedAt`, `finishedAt`, `pinnedAt`) are **range-queried** using `GTE` and `LTE` together to define a time interval.
 
 **Important timezone note:**
+
 - **Filter values** use **UTC+8** (Asia/Shanghai). Input times are interpreted as Beijing time.
 - **Response timestamps** are in **UTC**. The returned experiment fields (`createdAt`, `finishedAt`, etc.) are UTC ISO strings.
 
@@ -364,8 +366,8 @@ To filter experiments within a time range, combine `GTE` and `LTE` filters on th
 
 ```json
 [
-  {"key": "createdAt", "type": "STABLE", "op": "GTE", "value": ["2026-01-01T00:00:00"]},
-  {"key": "createdAt", "type": "STABLE", "op": "LTE", "value": ["2026-04-29T23:59:59"]}
+  { "key": "createdAt", "type": "STABLE", "op": "GTE", "value": ["2026-01-01T00:00:00"] },
+  { "key": "createdAt", "type": "STABLE", "op": "LTE", "value": ["2026-04-29T23:59:59"] }
 ]
 ```
 
@@ -381,31 +383,36 @@ To filter experiments within a time range, combine `GTE` and `LTE` filters on th
 ### Examples
 
 Filter by state:
+
 ```json
-[{"key": "state", "type": "STABLE", "op": "IN", "value": ["FINISHED", "RUNNING"]}]
+[{ "key": "state", "type": "STABLE", "op": "IN", "value": ["FINISHED", "RUNNING"] }]
 ```
 
 Filter by config value:
+
 ```json
-[{"key": "learning_rate", "type": "CONFIG", "op": "EQ", "value": ["0.01"]}]
+[{ "key": "learning_rate", "type": "CONFIG", "op": "EQ", "value": ["0.01"] }]
 ```
 
 Filter by scalar metric:
+
 ```json
-[{"key": "train/loss", "type": "SCALAR", "op": "LTE", "value": ["0.5"]}]
+[{ "key": "train/loss", "type": "SCALAR", "op": "LTE", "value": ["0.5"] }]
 ```
 
 Filter by time range (filter values in UTC+8, response in UTC):
+
 ```json
-[{"key": "finishedAt", "type": "STABLE", "op": "GTE", "value": ["2026-04-01T00:00:00"]}]
+[{ "key": "finishedAt", "type": "STABLE", "op": "GTE", "value": ["2026-04-01T00:00:00"] }]
 ```
 
 Multiple filters combined:
+
 ```json
 [
-  {"key": "state", "type": "STABLE", "op": "EQ", "value": ["FINISHED"]},
-  {"key": "learning_rate", "type": "CONFIG", "op": "GTE", "value": ["0.001"]},
-  {"key": "train/loss", "type": "SCALAR", "op": "LTE", "value": ["0.5"]}
+  { "key": "state", "type": "STABLE", "op": "EQ", "value": ["FINISHED"] },
+  { "key": "learning_rate", "type": "CONFIG", "op": "GTE", "value": ["0.001"] },
+  { "key": "train/loss", "type": "SCALAR", "op": "LTE", "value": ["0.5"] }
 ]
 ```
 
@@ -413,12 +420,12 @@ Multiple filters combined:
 
 ## Key Environment Variables
 
-| Variable | Purpose |
-|----------|---------|
-| `SWANLAB_API_KEY` | API authentication key |
+| Variable           | Purpose                                           |
+| ------------------ | ------------------------------------------------- |
+| `SWANLAB_API_KEY`  | API authentication key                            |
 | `SWANLAB_API_HOST` | API server URL (default `https://api.swanlab.cn`) |
-| `SWANLAB_WEB_HOST` | Web dashboard URL (default `https://swanlab.cn`) |
-| `SWANLAB_LOG_DIR` | Custom local log directory (default `./swanlog`) |
+| `SWANLAB_WEB_HOST` | Web dashboard URL (default `https://swanlab.cn`)  |
+| `SWANLAB_LOG_DIR`  | Custom local log directory (default `./swanlog`)  |
 | `SWANLAB_SAVE_DIR` | Root dir for SwanLab files (default `~/.swanlab`) |
 
 ---

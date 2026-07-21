@@ -29,7 +29,13 @@ This skill covers two usage patterns: writing training tracking code with the Py
 
 ## Installation
 
-Recommended global install:
+If you're using coding agent like Claude Code or Codex, just send it the following prompt to install automatically:
+
+```text
+Fetch the installation guide and follow it: https://raw.githubusercontent.com/SwanHubX/SwanLab-Skill/main/README.md
+```
+
+For manual installation, the recommended way is a global install:
 
 ```bash
 npx skills add SwanHubX/SwanLab-Skill -g -y
@@ -69,26 +75,26 @@ skills/
         └── runs_benchmark.py
 ```
 
-| File | Purpose |
-|---|---|
-| `SKILL.md` | Lightweight entry point and task router — tells the agent whether to read the SDK or CLI reference |
-| `references/SDK_QUICKSTART.md` | Tracking code quickstart: `swanlab.init` / `log` / `finish` and media logging (image / audio / text) |
-| `references/CLI_REFERENCE.md` | Query metrics, logs, summaries, columns, and media, and filter experiments via `swanlab api` |
-| `references/SWANLAB_CONCEPTS.md` | Data model, terminology, and path convention (`user/project/run_id`) |
-| `scripts/plot_metrics.py` | Line chart of a single experiment's scalar metrics |
-| `scripts/runs_benchmark.py` | Compare the same metric across experiments (normalization + best-run ranking) |
+| File                             | Purpose                                                                                              |
+| -------------------------------- | ---------------------------------------------------------------------------------------------------- |
+| `SKILL.md`                       | Lightweight entry point and task router — tells the agent whether to read the SDK or CLI reference   |
+| `references/SDK_QUICKSTART.md`   | Tracking code quickstart: `swanlab.init` / `log` / `finish` and media logging (image / audio / text) |
+| `references/CLI_REFERENCE.md`    | Query metrics, logs, summaries, columns, and media, and filter experiments via `swanlab api`         |
+| `references/SWANLAB_CONCEPTS.md` | Data model, terminology, and path convention (`user/project/run_id`)                                 |
+| `scripts/plot_metrics.py`        | Line chart of a single experiment's scalar metrics                                                   |
+| `scripts/runs_benchmark.py`      | Compare the same metric across experiments (normalization + best-run ranking)                        |
 
 ## Capabilities
 
-| Capability | How | Entry point |
-| --- | --- | --- |
-| Log metrics & rich media (image / audio / text) during training and fine-tuning | Python SDK | `references/SDK_QUICKSTART.md` |
-| Inspect a run's metrics, logs, summaries, columns, and media | `swanlab api run ...` CLI | `references/CLI_REFERENCE.md` |
-| List / filter experiments by config or summary conditions | `swanlab api run filter` CLI | `references/CLI_REFERENCE.md` |
-| Manage projects, self-hosted users, and other resources | `swanlab api project / user` CLI | `references/CLI_REFERENCE.md` |
-| Understand the data model & terminology before querying | — | `references/SWANLAB_CONCEPTS.md` |
-| Plot a **single** experiment's scalar metrics as a line chart | Helper script | `scripts/plot_metrics.py user/proj/run -k loss,acc -o chart.png` |
-| **Compare** the same metric across **multiple** experiments (normalization + best-run ranking) | Helper script | `scripts/runs_benchmark.py user/proj/r1 user/proj/r2 -k loss --direction lower` |
+| Capability                                                                                     | How                              | Entry point                                                                     |
+| ---------------------------------------------------------------------------------------------- | -------------------------------- | ------------------------------------------------------------------------------- |
+| Log metrics & rich media (image / audio / text) during training and fine-tuning                | Python SDK                       | `references/SDK_QUICKSTART.md`                                                  |
+| Inspect a run's metrics, logs, summaries, columns, and media                                   | `swanlab api run ...` CLI        | `references/CLI_REFERENCE.md`                                                   |
+| List / filter experiments by config or summary conditions                                      | `swanlab api run filter` CLI     | `references/CLI_REFERENCE.md`                                                   |
+| Manage projects, self-hosted users, and other resources                                        | `swanlab api project / user` CLI | `references/CLI_REFERENCE.md`                                                   |
+| Understand the data model & terminology before querying                                        | —                                | `references/SWANLAB_CONCEPTS.md`                                                |
+| Plot a **single** experiment's scalar metrics as a line chart                                  | Helper script                    | `scripts/plot_metrics.py user/proj/run -k loss,acc -o chart.png`                |
+| **Compare** the same metric across **multiple** experiments (normalization + best-run ranking) | Helper script                    | `scripts/runs_benchmark.py user/proj/r1 user/proj/r2 -k loss --direction lower` |
 
 Both helper scripts accept `--data file.json` to render from previously saved query output, and require `swanlab login` (or `--api-key` / `--host`).
 

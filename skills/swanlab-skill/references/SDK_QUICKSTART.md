@@ -43,22 +43,22 @@ run = swanlab.init(
 
 ### Key Parameters
 
-| Parameter | Type | Default | Description |
-|-----------|------|---------|-------------|
-| `project` | `str` | cwd name | Project name |
-| `name` | `str` | auto-generated | Experiment display name |
-| `description` | `str` | none | Experiment description |
-| `config` | `dict` / `str` / `Path` | none | Hyperparameters dict or path to JSON/YAML file |
-| `mode` | `str` | `"online"` | Run mode — see SKILL.md for details |
-| `workspace` | `str` | current user | Target workspace username |
-| `tags` | `list[str]` | none | Tags for categorization |
-| `group` | `str` | none | Group name for distributed/related experiments — see §11 |
-| `job_type` | `str` | none | Role label, e.g. `"train"`, `"worker"` — see §11 |
-| `resume` | `str` / `bool` | `"never"` | Resume strategy — see §9 |
-| `id` | `str` | auto | Custom run ID (1–512 chars, no `<>:"/\|?*#%` or control chars). Required when `resume="must"`. |
-| `log_dir` | `str` | `"./swanlog"` | Local log directory |
-| `callbacks` | `list` | none | Callback objects for lifecycle hooks |
-| `reinit` | `bool` | `False` | If True, finish current run before starting new one |
+| Parameter     | Type                    | Default        | Description                                                                                    |
+| ------------- | ----------------------- | -------------- | ---------------------------------------------------------------------------------------------- |
+| `project`     | `str`                   | cwd name       | Project name                                                                                   |
+| `name`        | `str`                   | auto-generated | Experiment display name                                                                        |
+| `description` | `str`                   | none           | Experiment description                                                                         |
+| `config`      | `dict` / `str` / `Path` | none           | Hyperparameters dict or path to JSON/YAML file                                                 |
+| `mode`        | `str`                   | `"online"`     | Run mode — see SKILL.md for details                                                            |
+| `workspace`   | `str`                   | current user   | Target workspace username                                                                      |
+| `tags`        | `list[str]`             | none           | Tags for categorization                                                                        |
+| `group`       | `str`                   | none           | Group name for distributed/related experiments — see §11                                       |
+| `job_type`    | `str`                   | none           | Role label, e.g. `"train"`, `"worker"` — see §11                                               |
+| `resume`      | `str` / `bool`          | `"never"`      | Resume strategy — see §9                                                                       |
+| `id`          | `str`                   | auto           | Custom run ID (1–512 chars, no `<>:"/\|?*#%` or control chars). Required when `resume="must"`. |
+| `log_dir`     | `str`                   | `"./swanlog"`  | Local log directory                                                                            |
+| `callbacks`   | `list`                  | none           | Callback objects for lifecycle hooks                                                           |
+| `reinit`      | `bool`                  | `False`        | If True, finish current run before starting new one                                            |
 
 ### Access Config at Runtime
 
@@ -117,15 +117,15 @@ swanlab.log_molecule(key="mol", data="CCO")
 
 ### Media Input Types
 
-| Media Class | Accepted Input Types |
-|-------------|---------------------|
-| `Image` | PIL Image, numpy array, torch Tensor, matplotlib Figure, file path (`str`) |
-| `Audio` | numpy array, file path (`str`) |
-| `Video` | file path (`str`) |
-| `Text` | string (`str`) |
-| `ECharts` | pyecharts chart object |
-| `Object3D` | numpy array, dict, file path (`str`) |
-| `Molecule` | SMILES string, file path (`str`), RDKit Mol object |
+| Media Class | Accepted Input Types                                                       |
+| ----------- | -------------------------------------------------------------------------- |
+| `Image`     | PIL Image, numpy array, torch Tensor, matplotlib Figure, file path (`str`) |
+| `Audio`     | numpy array, file path (`str`)                                             |
+| `Video`     | file path (`str`)                                                          |
+| `Text`      | string (`str`)                                                             |
+| `ECharts`   | pyecharts chart object                                                     |
+| `Object3D`  | numpy array, dict, file path (`str`)                                       |
+| `Molecule`  | SMILES string, file path (`str`), RDKit Mol object                         |
 
 All media `log_*` functions accept optional `caption` (string) and `step` (int) parameters.
 
@@ -156,12 +156,12 @@ future = swanlab.async_log(compute_expensive_metric, x=data, mode="threading")
 # finish() waits for all pending async_log tasks
 ```
 
-| `mode` | Execution |
-|--------|-----------|
+| `mode`        | Execution                   |
+| ------------- | --------------------------- |
 | `"threading"` | Background thread (default) |
-| `"spawn"` | New process |
-| `"fork"` | Forked process |
-| `"asyncio"` | Async event loop |
+| `"spawn"`     | New process                 |
+| `"fork"`      | Forked process              |
+| `"asyncio"`   | Async event loop            |
 
 ---
 
@@ -220,11 +220,11 @@ run.finish()
 
 ### Resume Strategies
 
-| `resume` | Existing experiment with same `id` | No matching experiment |
-|-----------|-----------------------------------|------------------------|
-| `"must"` | Resume it | **Error** |
-| `"allow"` / `True` | Resume it | Create a new one |
-| `"never"` / `False` | **Error** (if `id` is set) | Create a new one |
+| `resume`            | Existing experiment with same `id` | No matching experiment |
+| ------------------- | ---------------------------------- | ---------------------- |
+| `"must"`            | Resume it                          | **Error**              |
+| `"allow"` / `True`  | Resume it                          | Create a new one       |
+| `"never"` / `False` | **Error** (if `id` is set)         | Create a new one       |
 
 ### Finding the Experiment ID
 
@@ -317,9 +317,9 @@ swanlab.finish()
 
 ### Environment Variables for Distributed
 
-| Variable | Purpose |
-|----------|---------|
-| `SWANLAB_GROUP` | Group name for associating experiments |
-| `SWANLAB_JOB_TYPE` | Role label, e.g. `"train"`, `"worker"` |
-| `SWANLAB_NAME` | Experiment name |
-| `SWANLAB_DESCRIPTION` | Experiment description |
+| Variable              | Purpose                                |
+| --------------------- | -------------------------------------- |
+| `SWANLAB_GROUP`       | Group name for associating experiments |
+| `SWANLAB_JOB_TYPE`    | Role label, e.g. `"train"`, `"worker"` |
+| `SWANLAB_NAME`        | Experiment name                        |
+| `SWANLAB_DESCRIPTION` | Experiment description                 |
