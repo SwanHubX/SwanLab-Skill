@@ -42,7 +42,6 @@ import matplotlib
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 import numpy as np
-
 from swanlab.api import Api
 
 # ---------------------------------------------------------------------------
@@ -193,7 +192,18 @@ def print_comparison_table(
 # ---------------------------------------------------------------------------
 
 # Default color cycle
-_COLORS = ["#1f77b4", "#ff7f0e", "#2ca02c", "#d62728", "#9467bd", "#8c564b", "#e377c2", "#7f7f7f", "#bcbd22", "#17becf"]
+_COLORS = [
+    "#1f77b4",
+    "#ff7f0e",
+    "#2ca02c",
+    "#d62728",
+    "#9467bd",
+    "#8c564b",
+    "#e377c2",
+    "#7f7f7f",
+    "#bcbd22",
+    "#17becf",
+]
 
 
 def _pick_color(idx: int) -> str:
@@ -224,7 +234,9 @@ def plot_benchmark(
     ncols = min(n_keys, 2)
     nrows = math.ceil(n_keys / ncols)
 
-    fig, axes = plt.subplots(nrows, ncols, figsize=(9 * ncols, 5.5 * nrows), squeeze=False)
+    fig, axes = plt.subplots(
+        nrows, ncols, figsize=(9 * ncols, 5.5 * nrows), squeeze=False
+    )
     fig.suptitle(
         title or "Cross-Experiment Benchmark",
         fontsize=14,
@@ -239,7 +251,16 @@ def plot_benchmark(
 
         if not series_list or all(len(s.values) == 0 for s in series_list):
             ax.set_title(key, fontsize=12)
-            ax.text(0.5, 0.5, "No data", ha="center", va="center", transform=ax.transAxes, fontsize=13, color="gray")
+            ax.text(
+                0.5,
+                0.5,
+                "No data",
+                ha="center",
+                va="center",
+                transform=ax.transAxes,
+                fontsize=13,
+                color="gray",
+            )
             ax.set_xlabel("step" if not normalize else "progress (%)")
             ax.set_ylabel(key)
             continue
@@ -276,7 +297,15 @@ def plot_benchmark(
             )
 
             # Last-point marker
-            ax.scatter([x[-1]], [s.values[-1]], s=24, color=color, zorder=5, edgecolors="white", linewidths=0.6)
+            ax.scatter(
+                [x[-1]],
+                [s.values[-1]],
+                s=24,
+                color=color,
+                zorder=5,
+                edgecolors="white",
+                linewidths=0.6,
+            )
 
         ax.set_title(key, fontsize=12)
         ax.set_xlabel("step" if not normalize else "progress (%)", fontsize=11)
@@ -311,7 +340,9 @@ def plot_benchmark(
         for s in series_list:
             stats = compute_stats(s.values)
             if stats:
-                lines.append(f"{s.name}: last={stats['last']:.4g}  mean={stats['mean']:.4g}")
+                lines.append(
+                    f"{s.name}: last={stats['last']:.4g}  mean={stats['mean']:.4g}"
+                )
         if lines:
             ax.text(
                 0.02,
@@ -386,13 +417,23 @@ def parse_args() -> argparse.Namespace:
         default="benchmark.png",
         help="Output image path (default: benchmark.png).",
     )
-    parser.add_argument("--title", "-t", default=None, help="Chart title (default: auto).")
-    parser.add_argument("--dpi", type=int, default=150, help="Image DPI (default: 150).")
-    parser.add_argument("--api-key", default=None, help="SwanLab API key (or use swanlab login).")
     parser.add_argument(
-        "--data", default=None, help="Path to a JSON file with pre-fetched benchmark data. Skips API calls."
+        "--title", "-t", default=None, help="Chart title (default: auto)."
     )
-    parser.add_argument("--host", default=None, help="SwanLab API host URL (for self-hosted).")
+    parser.add_argument(
+        "--dpi", type=int, default=150, help="Image DPI (default: 150)."
+    )
+    parser.add_argument(
+        "--api-key", default=None, help="SwanLab API key (or use swanlab login)."
+    )
+    parser.add_argument(
+        "--data",
+        default=None,
+        help="Path to a JSON file with pre-fetched benchmark data. Skips API calls.",
+    )
+    parser.add_argument(
+        "--host", default=None, help="SwanLab API host URL (for self-hosted)."
+    )
     return parser.parse_args()
 
 
@@ -405,7 +446,10 @@ def main() -> int:
         return 1
 
     if not args.paths and not args.data:
-        print("Error: provide either PATH arguments or --data <json_file>.", file=sys.stderr)
+        print(
+            "Error: provide either PATH arguments or --data <json_file>.",
+            file=sys.stderr,
+        )
         return 1
 
     all_series: Dict[str, List[ExperimentSeries]] = {k: [] for k in keys}
@@ -415,14 +459,20 @@ def main() -> int:
         with open(args.data, "r", encoding="utf-8") as f:
             raw_data = json.load(f)
         # Expected structure: {"experiments": [{"name": "...", "path": "...", "metrics": {<key>: [{"step": s, "value": v}, ...]}}]}
-        experiments = raw_data if isinstance(raw_data, list) else raw_data.get("experiments", [raw_data])
+        experiments = (
+            raw_data
+            if isinstance(raw_data, list)
+            else raw_data.get("experiments", [raw_data])
+        )
         for exp in experiments:
             name = exp.get("name", "unknown")
             path = exp.get("path", "")
             metrics = exp.get("metrics", exp)  # fallback: top-level dict if flat
             for key in keys:
                 steps, values = _extract(metrics, key)
-                all_series[key].append(ExperimentSeries(name=name, path=path, steps=steps, values=values))
+                all_series[key].append(
+                    ExperimentSeries(name=name, path=path, steps=steps, values=values)
+                )
         print(f"Loaded benchmark data from: {args.data}")
     else:
         # Fetch from API
@@ -448,11 +498,15 @@ def main() -> int:
                 )
                 return 1
             name = custom_labels[i] if custom_labels else experiment.name
-            raw = experiment.metrics(keys=keys, sample=args.sample, ignore_timestamp=True)
+            raw = experiment.metrics(
+                keys=keys, sample=args.sample, ignore_timestamp=True
+            )
 
             for key in keys:
                 steps, values = _extract(raw, key)
-                all_series[key].append(ExperimentSeries(name=name, path=path, steps=steps, values=values))
+                all_series[key].append(
+                    ExperimentSeries(name=name, path=path, steps=steps, values=values)
+                )
 
     # Print comparison tables
     for key in keys:

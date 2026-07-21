@@ -17,7 +17,7 @@
 [![ModelScope Skill](https://img.shields.io/badge/ModelScope-Skill-624aff)](https://www.modelscope.cn/skills/SwanLab/swanlab-skill)
 [![Agent Skill](https://img.shields.io/badge/Agent-Skill-7c3aed)](skills/swanlab-skill/SKILL.md)
 [![SkillHub](https://img.shields.io/badge/SkillHub-Skill-1f8f4c)](https://skillhub.cn/skills/swanlab-skill)
-[![License](https://img.shields.io/badge/License-Apache%202.0-d4a017)](LICENSE)
+[![License](https://img.shields.io/badge/License-MIT-d4a017)](LICENSE)
 
 这个 Skill 覆盖两类用法：用 Python SDK（`swanlab.init` / `swanlab.log` / `swanlab.finish` + 多媒体记录）写训练跟踪代码；用 `swanlab api` CLI 查询实验指标、日志、摘要与媒体。Agent 会先按任务路由读取对应的能力说明，再生成代码或执行查询，避免误用接口。
 
@@ -129,6 +129,6 @@ scripts/
 
 ## 许可证
 
-[Apache License 2.0](LICENSE).
+[MIT License](LICENSE).
 
-Copyright 2024-2026 Emotion Machine (Beijing) Technology Co., Ltd.
+Copyright (c) 2026 Emotion Machine (Beijing) Technology Co., Ltd.
