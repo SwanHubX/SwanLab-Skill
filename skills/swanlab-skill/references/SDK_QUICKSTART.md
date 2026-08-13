@@ -21,6 +21,7 @@ Or login programmatically:
 
 ```python
 import swanlab
+
 swanlab.login(api_key="your-api-key", save=True)
 ```
 
@@ -30,10 +31,10 @@ swanlab.login(api_key="your-api-key", save=True)
 
 ```python
 run = swanlab.init(
-    project="my-project",        # project name (defaults to cwd name)
-    name="resnet-exp-1",         # experiment name (auto-generated if omitted)
+    project="my-project",  # project name (defaults to cwd name)
+    name="resnet-exp-1",  # experiment name (auto-generated if omitted)
     description="baseline run",  # experiment description
-    config={                     # hyperparameters / metadata (dict, JSON path, or YAML path)
+    config={  # hyperparameters / metadata (dict, JSON path, or YAML path)
         "learning_rate": 0.01,
         "epochs": 10,
         "batch_size": 32,
@@ -92,15 +93,17 @@ swanlab.log({"loss": 0.3, "accuracy": 0.95}, step=10)  # explicit step
 ### Style A: Pass media objects to `swanlab.log()`
 
 ```python
-swanlab.log({
-    "sample_image": swanlab.Image(tensor_or_path),
-    "sample_audio": swanlab.Audio(numpy_array, sample_rate=16000),
-    "sample_text":  swanlab.Text("generated output"),
-    "sample_video": swanlab.Video("video.mp4"),
-    "chart":        swanlab.ECharts(pyecharts_chart),
-    "point_cloud":  swanlab.Object3D(numpy_array),
-    "mol":          swanlab.Molecule("CCO"),  # SMILES string
-})
+swanlab.log(
+    {
+        "sample_image": swanlab.Image(tensor_or_path),
+        "sample_audio": swanlab.Audio(numpy_array, sample_rate=16000),
+        "sample_text": swanlab.Text("generated output"),
+        "sample_video": swanlab.Video("video.mp4"),
+        "chart": swanlab.ECharts(pyecharts_chart),
+        "point_cloud": swanlab.Object3D(numpy_array),
+        "mol": swanlab.Molecule("CCO"),  # SMILES string
+    }
+)
 ```
 
 ### Style B: Use convenience functions
@@ -134,7 +137,7 @@ All media `log_*` functions accept optional `caption` (string) and `step` (int) 
 ## 5. Finish an Experiment — `swanlab.finish()`
 
 ```python
-swanlab.finish()                          # state="success" (default)
+swanlab.finish()  # state="success" (default)
 swanlab.finish(state="crashed", error="OOM")  # report a crash
 ```
 
@@ -208,13 +211,13 @@ Resume an existing experiment to append new data (instead of creating a new one)
 ```python
 # First run — remember the ID
 run = swanlab.init(project="my-project")
-run_id = run.id       # e.g. "abc123"
+run_id = run.id  # e.g. "abc123"
 swanlab.log({"loss": 2.0})
 run.finish()
 
 # Later — resume that same experiment
 run = swanlab.init(project="my-project", resume="must", id=run_id)
-swanlab.log({"loss": 0.5})   # appended after the existing data
+swanlab.log({"loss": 0.5})  # appended after the existing data
 run.finish()
 ```
 
@@ -304,7 +307,7 @@ rank = int(os.environ.get("RANK", 0))
 
 swanlab.init(
     project="ddp-training",
-    group="exp-20260604",                    # same group for all ranks
+    group="exp-20260604",  # same group for all ranks
     job_type="main" if rank == 0 else f"worker-{rank}",
 )
 
