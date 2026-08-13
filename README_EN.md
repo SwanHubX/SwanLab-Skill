@@ -16,6 +16,7 @@
 [![SwanLab Docs](https://img.shields.io/badge/SwanLab-Docs-c4f042?labelColor=black&style=flat-square)](https://docs.swanlab.cn)
 [![ModelScope Skill](https://img.shields.io/badge/ModelScope-Skill-624aff)](https://www.modelscope.cn/skills/SwanLab/swanlab-skill)
 [![Agent Skill](https://img.shields.io/badge/Agent-Skill-7c3aed)](skills/swanlab-skill/SKILL.md)
+[![Skill Version](https://img.shields.io/badge/Skill-v0.2.0-7c3aed)](skills/swanlab-skill/SKILL.md)
 [![SkillHub](https://img.shields.io/badge/SkillHub-Skill-1f8f4c)](https://skillhub.cn/skills/swanlab-skill)
 [![License](https://img.shields.io/badge/License-MIT-d4a017)](LICENSE)
 
@@ -114,7 +115,7 @@ Both helper scripts accept `--data file.json` to render from previously saved qu
 Build the release archive:
 
 ```bash
-make pack
+make package
 ```
 
 The generated `dist/swanlab-skill.zip` extracts to:
