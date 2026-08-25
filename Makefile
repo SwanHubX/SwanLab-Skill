@@ -8,10 +8,9 @@ SKILLS := $(patsubst $(SKILLS_DIR)/%/,%,$(wildcard $(SKILLS_DIR)/*/))
 package: clean
 	@mkdir -p $(DIST_DIR)
 	@for skill in $(SKILLS); do \
-		(cd $(SKILLS_DIR)/$$skill && zip -qr ../../$(DIST_DIR)/$$skill.zip . -x '*/__pycache__/*' '*.pyc'); \
+		(cd $(SKILLS_DIR) && zip -qr ../$(DIST_DIR)/$$skill.zip $$skill -x '*/__pycache__/*' '*.pyc'); \
 		echo "Packed: $$skill/ -> $(DIST_DIR)/$$skill.zip"; \
 	done
-
 lint:
 	uvx ruff check --fix .
 

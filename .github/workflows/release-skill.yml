@@ -132,7 +132,7 @@ jobs:
           unzip -tq dist/swanlab-skill.zip
           unzip -Z1 dist/swanlab-skill.zip > "$RUNNER_TEMP/swanlab-skill-zip-files.txt"
 
-          grep -Fxq 'SKILL.md' "$RUNNER_TEMP/swanlab-skill-zip-files.txt"
+          grep -Fxq 'swanlab-skill/SKILL.md' "$RUNNER_TEMP/swanlab-skill-zip-files.txt"
 
           if grep -Eq '(^|/)(__pycache__/|[^/]*\.pyc$)' \
             "$RUNNER_TEMP/swanlab-skill-zip-files.txt"; then
