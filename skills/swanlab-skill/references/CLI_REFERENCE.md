@@ -273,7 +273,7 @@ swanlab api run column PATH --key KEY [OPTIONS]
 
 Get scalar metric data for specified keys.
 Keys is a comma-separated list of column keys, e.g. `loss,acc`.
-Returns an object mapping each key to its data points (step, value). Use `--all` to fetch all data points without sampling limit. See `SWANLAB_CONCEPTS.md > Scalar Metrics` for data structure details.
+Returns `{"ok", "errmsg", "data"}` where `data.list` holds one entry per key: `key`, sampled `metrics` points (`index`/`data`/`timestamp`), and server-side statistics (`min`/`max`/`avg`/`median`/`latest`). Use `--all` to fetch all data points without sampling limit. See `SWANLAB_CONCEPTS.md > Scalar Metrics` for data structure details.
 
 ```bash
 swanlab api run metrics PATH --keys KEYS [OPTIONS]

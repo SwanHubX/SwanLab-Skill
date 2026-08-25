@@ -132,7 +132,7 @@ jobs:
           unzip -tq dist/swanlab-skill.zip
           unzip -Z1 dist/swanlab-skill.zip > "$RUNNER_TEMP/swanlab-skill-zip-files.txt"
 
-          grep -Fxq 'SKILL.md' "$RUNNER_TEMP/swanlab-skill-zip-files.txt"
+          grep -Fxq 'swanlab-skill/SKILL.md' "$RUNNER_TEMP/swanlab-skill-zip-files.txt"
 
           if grep -Eq '(^|/)(__pycache__/|[^/]*\.pyc$)' \
             "$RUNNER_TEMP/swanlab-skill-zip-files.txt"; then
@@ -155,13 +155,13 @@ jobs:
           gh release create "$TAG" \
             "dist/${ARCHIVE_BASE}.zip#SwanLab Skill zip" \
             --target "$GITHUB_SHA" \
-            --title "SwanLab Skill ${TAG}" \
+            --title "swanlab-skill-${TAG}" \
             --generate-notes \
             --fail-on-no-commits
 
           release_url="$(gh release view "$TAG" --json url --jq .url)"
           {
-            echo "## SwanLab Skill ${TAG}"
+            echo "## swanlab-skill-${TAG}"
             echo
             echo "Release: ${release_url}"
           } >> "$GITHUB_STEP_SUMMARY"

@@ -84,29 +84,68 @@ def fetch_series(
     return ExperimentSeries(name=name, path=path, steps=steps, values=values)
 
 
+def _unwrap_envelope(data: Any) -> Any:
+    """Unwrap the ``{"ok": ..., "errmsg": ..., "data": ...}`` envelope written by CLI ``--save``."""
+    if (
+        isinstance(data, dict)
+        and "list" not in data
+        and "keys" not in data
+        and isinstance(data.get("ok"), bool)
+        and "data" in data
+    ):
+        return data.get("data") or {}
+    return data
+
+
 def _extract(metric_data: Dict[str, Any], key: str) -> Tuple[List[int], List[float]]:
-    """Pull (steps, values) from the raw API response dict."""
-    entry = metric_data.get(key)
-    if entry is None:
+    """Pull (steps, values) from the raw API response dict.
+
+    Handles three response shapes:
+    - Current SDK format (``Experiment.metrics()`` / ``Metrics.json()``)::
+        ``{"keys": [...], "list": [{"key": k, "metrics": [{"index": i, "data": v}, ...], ...}]}``
+    - CLI ``--save`` output — the same structure wrapped in an
+      ``{"ok": ..., "errmsg": ..., "data": ...}`` envelope
+    - Legacy format (pre-0.9.0)::
+        ``{key: [{"step": s, "value": v}, ...]}`` (flat list or nested under "data")
+    """
+    data = _unwrap_envelope(metric_data)
+    if not isinstance(data, dict):
         return [], []
 
-    if isinstance(entry, dict) and "data" in entry:
-        points = entry["data"]
-    elif isinstance(entry, list):
-        points = entry
-    else:
-        return [], []
+    points: Any = None
+    entries = data.get("list")
+    if isinstance(entries, list):
+        # Current SDK format: locate the entry matching the requested key
+        for entry in entries:
+            if isinstance(entry, dict) and entry.get("key") == key:
+                points = entry.get("metrics") or []
+                break
+    elif key in data:
+        # Legacy format: flat list or nested under "data"
+        entry = data[key]
+        if isinstance(entry, dict) and "data" in entry:
+            points = entry["data"]
+        elif isinstance(entry, list):
+            points = entry
 
     steps: List[int] = []
     values: List[float] = []
-    for pt in points:
+    for pt in points or []:
         if not isinstance(pt, dict):
             continue
         step = pt.get("step")
+        if step is None:
+            step = pt.get("index")
         value = pt.get("value")
-        if step is not None and value is not None:
+        if value is None:
+            value = pt.get("data")
+        if step is None or value is None:
+            continue
+        try:
             steps.append(int(step))
             values.append(float(value))
+        except (TypeError, ValueError):
+            continue
     return steps, values
 
 
@@ -234,9 +273,7 @@ def plot_benchmark(
     ncols = min(n_keys, 2)
     nrows = math.ceil(n_keys / ncols)
 
-    fig, axes = plt.subplots(
-        nrows, ncols, figsize=(9 * ncols, 5.5 * nrows), squeeze=False
-    )
+    fig, axes = plt.subplots(nrows, ncols, figsize=(9 * ncols, 5.5 * nrows), squeeze=False)
     fig.suptitle(
         title or "Cross-Experiment Benchmark",
         fontsize=14,
@@ -340,9 +377,7 @@ def plot_benchmark(
         for s in series_list:
             stats = compute_stats(s.values)
             if stats:
-                lines.append(
-                    f"{s.name}: last={stats['last']:.4g}  mean={stats['mean']:.4g}"
-                )
+                lines.append(f"{s.name}: last={stats['last']:.4g}  mean={stats['mean']:.4g}")
         if lines:
             ax.text(
                 0.02,
@@ -417,23 +452,15 @@ def parse_args() -> argparse.Namespace:
         default="benchmark.png",
         help="Output image path (default: benchmark.png).",
     )
-    parser.add_argument(
-        "--title", "-t", default=None, help="Chart title (default: auto)."
-    )
-    parser.add_argument(
-        "--dpi", type=int, default=150, help="Image DPI (default: 150)."
-    )
-    parser.add_argument(
-        "--api-key", default=None, help="SwanLab API key (or use swanlab login)."
-    )
+    parser.add_argument("--title", "-t", default=None, help="Chart title (default: auto).")
+    parser.add_argument("--dpi", type=int, default=150, help="Image DPI (default: 150).")
+    parser.add_argument("--api-key", default=None, help="SwanLab API key (or use swanlab login).")
     parser.add_argument(
         "--data",
         default=None,
-        help="Path to a JSON file with pre-fetched benchmark data. Skips API calls.",
+        help="Path to a JSON file with pre-fetched benchmark data (SDK output, CLI --save files, or legacy format). Skips API calls.",
     )
-    parser.add_argument(
-        "--host", default=None, help="SwanLab API host URL (for self-hosted)."
-    )
+    parser.add_argument("--host", default=None, help="SwanLab API host URL (for self-hosted).")
     return parser.parse_args()
 
 
@@ -458,21 +485,18 @@ def main() -> int:
         # Load pre-fetched benchmark data from JSON
         with open(args.data, "r", encoding="utf-8") as f:
             raw_data = json.load(f)
-        # Expected structure: {"experiments": [{"name": "...", "path": "...", "metrics": {<key>: [{"step": s, "value": v}, ...]}}]}
-        experiments = (
-            raw_data
-            if isinstance(raw_data, list)
-            else raw_data.get("experiments", [raw_data])
-        )
+        # Expected structure (current SDK format):
+        # {"experiments": [{"name": "...", "path": "...", "metrics": {"keys": [...], "list": [{"key": k, "metrics": [{"index": i, "data": v}, ...]}]}}]}
+        # Legacy per-key format ({<key>: [{"step": s, "value": v}, ...]}) and CLI
+        # --save envelopes ({"ok", "errmsg", "data"}) are also accepted.
+        experiments = raw_data if isinstance(raw_data, list) else raw_data.get("experiments", [raw_data])
         for exp in experiments:
             name = exp.get("name", "unknown")
             path = exp.get("path", "")
             metrics = exp.get("metrics", exp)  # fallback: top-level dict if flat
             for key in keys:
                 steps, values = _extract(metrics, key)
-                all_series[key].append(
-                    ExperimentSeries(name=name, path=path, steps=steps, values=values)
-                )
+                all_series[key].append(ExperimentSeries(name=name, path=path, steps=steps, values=values))
         print(f"Loaded benchmark data from: {args.data}")
     else:
         # Fetch from API
@@ -498,15 +522,11 @@ def main() -> int:
                 )
                 return 1
             name = custom_labels[i] if custom_labels else experiment.name
-            raw = experiment.metrics(
-                keys=keys, sample=args.sample, ignore_timestamp=True
-            )
+            raw = experiment.metrics(keys=keys, sample=args.sample, ignore_timestamp=True)
 
             for key in keys:
                 steps, values = _extract(raw, key)
-                all_series[key].append(
-                    ExperimentSeries(name=name, path=path, steps=steps, values=values)
-                )
+                all_series[key].append(ExperimentSeries(name=name, path=path, steps=steps, values=values))
 
     # Print comparison tables
     for key in keys:

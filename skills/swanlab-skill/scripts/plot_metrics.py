@@ -52,9 +52,7 @@ def fetch_metrics(
     api = Api(api_key=api_key, host=host)
     experiment = api.run(path)
     if not experiment.run_id:
-        raise ValueError(
-            f"Failed to fetch experiment at path '{path}'. Please verify the path and credentials."
-        )
+        raise ValueError(f"Failed to fetch experiment at path '{path}'. Please verify the path and credentials.")
     return experiment.metrics(keys=keys, sample=sample, ignore_timestamp=True)
 
 
@@ -68,9 +66,7 @@ def fetch_summary(
     api = Api(api_key=api_key, host=host)
     experiment = api.run(path)
     if not experiment.run_id:
-        raise ValueError(
-            f"Failed to fetch experiment at path '{path}'. Please verify the path and credentials."
-        )
+        raise ValueError(f"Failed to fetch experiment at path '{path}'. Please verify the path and credentials.")
     return experiment.summary(keys=keys)
 
 
@@ -79,37 +75,72 @@ def fetch_summary(
 # ---------------------------------------------------------------------------
 
 
-def extract_series(
-    metric_data: Dict[str, Any], key: str
-) -> Tuple[List[int], List[float]]:
+def _unwrap_envelope(data: Any) -> Any:
+    """Unwrap the ``{"ok": ..., "errmsg": ..., "data": ...}`` envelope written by CLI ``--save``."""
+    if (
+        isinstance(data, dict)
+        and "list" not in data
+        and "keys" not in data
+        and isinstance(data.get("ok"), bool)
+        and "data" in data
+    ):
+        return data.get("data") or {}
+    return data
+
+
+def extract_series(metric_data: Dict[str, Any], key: str) -> Tuple[List[int], List[float]]:
     """
     Extract (steps, values) for a single metric key.
 
-    Handles two common response shapes:
-    - ``{key: [{"step": s, "value": v}, ...]}``          (flat list)
-    - ``{key: {"data": [{"step": s, "value": v}, ...]}}`` (nested under "data")
+    Handles three response shapes:
+    - Current SDK format (``Experiment.metrics()`` / ``Metrics.json()``)::
+        ``{"keys": [...], "list": [{"key": k, "metrics": [{"index": i, "data": v}, ...], ...}]}``
+    - CLI ``--save`` output — the same structure wrapped in an
+      ``{"ok": ..., "errmsg": ..., "data": ...}`` envelope
+    - Legacy format (pre-0.9.0)::
+        ``{key: [{"step": s, "value": v}, ...]}`` (flat list or nested under "data")
+
+    Data points use ``index``/``data`` field names in the current format and
+    ``step``/``value`` in the legacy format; both are accepted.
     """
-    entry = metric_data.get(key)
-    if entry is None:
+    data = _unwrap_envelope(metric_data)
+    if not isinstance(data, dict):
         return [], []
 
-    if isinstance(entry, dict) and "data" in entry:
-        points = entry["data"]
-    elif isinstance(entry, list):
-        points = entry
-    else:
-        return [], []
+    points: Any = None
+    entries = data.get("list")
+    if isinstance(entries, list):
+        # Current SDK format: locate the entry matching the requested key
+        for entry in entries:
+            if isinstance(entry, dict) and entry.get("key") == key:
+                points = entry.get("metrics") or []
+                break
+    elif key in data:
+        # Legacy format: flat list or nested under "data"
+        entry = data[key]
+        if isinstance(entry, dict) and "data" in entry:
+            points = entry["data"]
+        elif isinstance(entry, list):
+            points = entry
 
     steps: List[int] = []
     values: List[float] = []
-    for pt in points:
+    for pt in points or []:
         if not isinstance(pt, dict):
             continue
         step = pt.get("step")
+        if step is None:
+            step = pt.get("index")
         value = pt.get("value")
-        if step is not None and value is not None:
+        if value is None:
+            value = pt.get("data")
+        if step is None or value is None:
+            continue
+        try:
             steps.append(int(step))
             values.append(float(value))
+        except (TypeError, ValueError):
+            continue
     return steps, values
 
 
@@ -176,9 +207,7 @@ def plot_line_chart(
     ncols = min(n, 2)
     nrows = math.ceil(n / ncols)
 
-    fig, axes = plt.subplots(
-        nrows, ncols, figsize=(7 * ncols, 4.5 * nrows), squeeze=False
-    )
+    fig, axes = plt.subplots(nrows, ncols, figsize=(7 * ncols, 4.5 * nrows), squeeze=False)
     fig.suptitle(title or "SwanLab Metrics", fontsize=14, fontweight="bold", y=0.98)
 
     for idx, key in enumerate(keys):
@@ -258,7 +287,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument(
         "--data",
         default=None,
-        help="Path to a JSON file with pre-fetched metric data. Skips API calls entirely.",
+        help="Path to a JSON file with pre-fetched metric data (SDK output, CLI --save file, or legacy format). Skips API calls entirely.",
     )
     parser.add_argument(
         "--keys",
@@ -266,25 +295,17 @@ def parse_args() -> argparse.Namespace:
         required=True,
         help="Comma-separated metric keys, e.g. 'loss,acc'",
     )
-    parser.add_argument(
-        "--sample", "-s", type=int, default=1500, help="Sample size (default: 1500)"
-    )
+    parser.add_argument("--sample", "-s", type=int, default=1500, help="Sample size (default: 1500)")
     parser.add_argument(
         "--output",
         "-o",
         default="metrics_chart.png",
         help="Output image path (default: metrics_chart.png)",
     )
-    parser.add_argument(
-        "--title", "-t", default=None, help="Chart title (default: auto)"
-    )
+    parser.add_argument("--title", "-t", default=None, help="Chart title (default: auto)")
     parser.add_argument("--dpi", type=int, default=150, help="Image DPI (default: 150)")
-    parser.add_argument(
-        "--api-key", default=None, help="SwanLab API key (or use swanlab login)"
-    )
-    parser.add_argument(
-        "--host", default=None, help="SwanLab API host URL (for self-hosted)"
-    )
+    parser.add_argument("--api-key", default=None, help="SwanLab API key (or use swanlab login)")
+    parser.add_argument("--host", default=None, help="SwanLab API host URL (for self-hosted)")
     return parser.parse_args()
 
 
