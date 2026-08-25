@@ -1,0 +1,8 @@
+# isort is provided by ruff's built-in "I" rules (I001–I005),
+# so import sorting stays consistent with ruff format.
+
+line-length = 122
+
+[lint]
+select = ["E", "W", "F", "I"]
+ignore = ["E501"]

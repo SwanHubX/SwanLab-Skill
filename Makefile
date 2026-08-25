@@ -3,7 +3,7 @@ DIST_DIR   := dist
 
 SKILLS := $(patsubst $(SKILLS_DIR)/%/,%,$(wildcard $(SKILLS_DIR)/*/))
 
-.PHONY: package clean format
+.PHONY: package clean lint format
 
 package: clean
 	@mkdir -p $(DIST_DIR)
@@ -12,7 +12,11 @@ package: clean
 		echo "Packed: $$skill/ -> $(DIST_DIR)/$$skill.zip"; \
 	done
 
+lint:
+	uvx ruff check --fix .
+
 format:
+	uvx ruff check --select I --fix .
 	uvx ruff format .
 	npx oxfmt .
 
