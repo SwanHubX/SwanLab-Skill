@@ -155,13 +155,13 @@ jobs:
           gh release create "$TAG" \
             "dist/${ARCHIVE_BASE}.zip#SwanLab Skill zip" \
             --target "$GITHUB_SHA" \
-            --title "SwanLab Skill ${TAG}" \
+            --title "swanlab-skill-${TAG}" \
             --generate-notes \
             --fail-on-no-commits
 
           release_url="$(gh release view "$TAG" --json url --jq .url)"
           {
-            echo "## SwanLab Skill ${TAG}"
+            echo "## swanlab-skill-${TAG}"
             echo
             echo "Release: ${release_url}"
           } >> "$GITHUB_STEP_SUMMARY"
