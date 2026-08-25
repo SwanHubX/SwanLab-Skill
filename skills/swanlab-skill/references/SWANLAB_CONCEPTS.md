@@ -112,8 +112,9 @@ Understanding which metric type to query is critical for answering "where's my d
 
 Numeric time-series data logged at each training step.
 
-```
 Structure per data point:
+
+```
 {
   "index": 0,        // step number or custom x-axis value
   "data": 0.523,     // the metric value (can be int, float, or "NaN"/"INF"/"-INF")
@@ -121,7 +122,27 @@ Structure per data point:
 }
 ```
 
-**Statistics** are computed server-side per scalar column: `min`, `max`, `avg`, `median`, `latest`.
+Full response structure (SDK `Experiment.metrics()` / CLI `run metrics`; CLI wraps it in `{"ok", "errmsg", "data"}`):
+
+```
+{
+  "keys": ["loss", "acc"],
+  "metricType": "SCALAR",
+  "list": [
+    {
+      "key": "loss",
+      "metrics": [ { "index": 0, "data": 0.523, "timestamp": 1714368000 }, ... ],
+      "min":    { "index": 12, "data": 0.498 },   // server-side statistics,
+      "max":    { "index": 0,  "data": 0.523 },   // each stat is a point object
+      "avg":    { "index": 0,  "data": 0.510 },   // whose "data" holds the stat value
+      "median": { "index": 0,  "data": 0.509 },
+      "latest": { "index": 99, "data": 0.501 }
+    }
+  ]
+}
+```
+
+**Statistics** are computed server-side per scalar column: `min`, `max`, `avg`, `median`, `latest` — read `data.list[<entry>].<stat>.data` for a quick aggregate without parsing all points. `stdDev` is **not** included here; it is only available via `run summary` (see Scalar Summary below).
 
 > **Tip**: When metric data is large, use `--save` to persist JSON to file, then visualize with `scripts/plot_metrics.py --data file.json -k loss`. For quick stats without full time-series, prefer `run summary`.
 
