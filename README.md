@@ -14,6 +14,8 @@
 
 [![SwanLab 官网](https://img.shields.io/badge/SwanLab-官网-C21E31?labelColor=black&style=flat-square)](https://swanlab.cn/)
 [![SwanLab Docs](https://img.shields.io/badge/SwanLab-官方文档-c4f042?labelColor=black&style=flat-square)](https://docs.swanlab.cn)
+[![Skill Version](https://img.shields.io/badge/Skill-v0.2.6-7c3aed)](skills/swanlab-skill/SKILL.md)
+[![SkillHub](https://img.shields.io/badge/SkillHub-Skill-1f8f4c)](https://skillhub.cn/skills/swanlab-skill)
 [![ModelScope Skill](https://img.shields.io/badge/ModelScope-Skill-624aff)](https://www.modelscope.cn/skills/SwanLab/swanlab-skill)
 [![Agent Skill](https://img.shields.io/badge/Agent-Skill-7c3aed)](skills/swanlab-skill/SKILL.md)
 [![Skill Version](https://img.shields.io/badge/Skill-v0.3.0-7c3aed)](skills/swanlab-skill/SKILL.md)
