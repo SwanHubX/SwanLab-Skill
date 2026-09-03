@@ -131,6 +131,7 @@ Full response structure (SDK `Experiment.metrics()` / CLI `run metrics`; CLI wra
   "list": [
     {
       "key": "loss",
+      "xAxis":  { "type": "step" },                  // semantics of metrics[].index (see Custom X Axis)
       "metrics": [ { "index": 0, "data": 0.523, "timestamp": 1714368000 }, ... ],
       "min":    { "index": 12, "data": 0.498 },   // server-side statistics,
       "max":    { "index": 0,  "data": 0.523 },   // each stat is a point object
@@ -148,21 +149,27 @@ Full response structure (SDK `Experiment.metrics()` / CLI `run metrics`; CLI wra
 
 **Sampling**: By default, `--sample 1500` returns downsampled data for visualization. Use `--all` to fetch all data points without sampling limit.
 
+**Custom X Axis**: scalars are plotted against the system `step` by default; `swanlab.define_metric(key, x_axis=...)` (SDK ≥ 0.10.0, usage see `SDK_QUICKSTART.md > Custom X Axis`) binds a metric to another axis (e.g. `epoch`). X is assumed monotonic — the same X value keeps only the first Y point, so queried data has at most one Y per X (unless X went backwards).
+
+- **Query side**: `run metrics --x-axis <key>` (or SDK `metrics(x_axis=...)`) fetches points against that axis — `step` (default), `time` / `relative_time` (built-in), or any custom column key. Each entry echoes `xAxis` describing what `index` means: `{"type": "step"}`, `{"type": "SYSTEM", "key": "time"}`, or `{"type": "CUSTOM", "key": "epoch"}`.
+- CSV mode (`--all` / range query) under a custom axis: points carry `step`/`value`/`timestamp` plus `index` (the custom x value). Missing cells become `NaN` placeholders so per-key lists stay aligned (the CLI renders `NaN` as `null`). Sampled mode drops such points server-side instead. `time` / `relative_time` axes are unavailable in CSV mode.
+
 **Range Query** (client-side CSV filtering): When you need only a subset of scalar data points, use range query options to download the full CSV and filter client-side:
 
-| Option          | Default | Description                                                                                                                                   |
-| --------------- | ------- | --------------------------------------------------------------------------------------------------------------------------------------------- |
-| `--range-type`  | `step`  | Filter axis: `step` (by step number) or `timestamp` (by Unix timestamp in **milliseconds**)                                                   |
-| `--range-start` | none    | Start value, inclusive (int ≥ 0)                                                                                                              |
-| `--range-end`   | none    | End value, inclusive (int ≥ 0)                                                                                                                |
-| `--range-head`  | none    | First N data points (int ≥ 1). Mutually exclusive with `--range-tail`                                                                         |
-| `--range-tail`  | none    | Last N data points (int ≥ 1). Mutually exclusive with `--range-head`                                                                          |
-| `--range-last`  | none    | Last N milliseconds of data (int > 0). Mutually exclusive with `--range-start`/`--range-end`. Can combine with `--range-head`/`--range-tail`. |
+| Option          | Default | Description                                                                                                                                          |
+| --------------- | ------- | ---------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `--range-type`  | `step`  | Filter axis: `step` (by step number), `timestamp` (by Unix timestamp in **milliseconds**), or `custom` (by custom x value; requires a custom x axis) |
+| `--range-start` | none    | Start value, inclusive. `step`/`timestamp`: int ≥ 0; `custom`: any finite float (negatives allowed)                                                  |
+| `--range-end`   | none    | End value, inclusive. Same rules as `--range-start`                                                                                                  |
+| `--range-head`  | none    | First N data points (int ≥ 1). Mutually exclusive with `--range-tail`                                                                                |
+| `--range-tail`  | none    | Last N data points (int ≥ 1). Mutually exclusive with `--range-head`                                                                                 |
+| `--range-last`  | none    | Last N milliseconds of data (int > 0). Mutually exclusive with `--range-start`/`--range-end`. Can combine with `--range-head`/`--range-tail`.        |
 
 - `--range-head` and `--range-tail` are mutually exclusive, acted as post-sampling.
 - `--range-last` is mutually exclusive with `--range-start`/`--range-end`.
 - `--range-head`/`--range-tail` can be combined with `--range-last` or `--range-start`/`--range-end`.
 - `--range-start` must be ≤ `--range-end`.
+- `--range-type custom` requires querying with a custom x axis (`--x-axis <key>`).
 - When `--range-type timestamp` is used, rows missing a timestamp column are skipped.
 - Range query bypasses the sampling API entirely — it streams and filters the CSV export directly. Statistics (min/max/avg/median/latest) are still fetched via the sampling API and are **not** affected by the range filter.
 

@@ -14,10 +14,9 @@
 
 [![SwanLab Website](https://img.shields.io/badge/SwanLab-Website-C21E31?labelColor=black&style=flat-square)](https://swanlab.cn/)
 [![SwanLab Docs](https://img.shields.io/badge/SwanLab-Docs-c4f042?labelColor=black&style=flat-square)](https://docs.swanlab.cn)
-[![ModelScope Skill](https://img.shields.io/badge/ModelScope-Skill-624aff)](https://www.modelscope.cn/skills/SwanLab/swanlab-skill)
-[![Agent Skill](https://img.shields.io/badge/Agent-Skill-7c3aed)](skills/swanlab-skill/SKILL.md)
-[![Skill Version](https://img.shields.io/badge/Skill-v0.2.5-7c3aed)](skills/swanlab-skill/SKILL.md)
+[![Skill Version](https://img.shields.io/badge/Skill-v0.2.6-7c3aed)](skills/swanlab-skill/SKILL.md)
 [![SkillHub](https://img.shields.io/badge/SkillHub-Skill-1f8f4c)](https://skillhub.cn/skills/swanlab-skill)
+[![ModelScope Skill](https://img.shields.io/badge/ModelScope-Skill-624aff)](https://www.modelscope.cn/skills/SwanLab/swanlab-skill)
 [![License](https://img.shields.io/badge/License-MIT-d4a017)](LICENSE)
 
 This skill covers two usage patterns: writing training tracking code with the Python SDK (`swanlab.init` / `swanlab.log` / `swanlab.finish` + multimedia logging), and querying experiment metrics, logs, summaries, and media with the `swanlab api` CLI. The agent first reads the capability reference routed by task, then generates code or runs queries — avoiding API misuse.

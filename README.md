@@ -14,10 +14,9 @@
 
 [![SwanLab 官网](https://img.shields.io/badge/SwanLab-官网-C21E31?labelColor=black&style=flat-square)](https://swanlab.cn/)
 [![SwanLab Docs](https://img.shields.io/badge/SwanLab-官方文档-c4f042?labelColor=black&style=flat-square)](https://docs.swanlab.cn)
-[![ModelScope Skill](https://img.shields.io/badge/ModelScope-Skill-624aff)](https://www.modelscope.cn/skills/SwanLab/swanlab-skill)
-[![Agent Skill](https://img.shields.io/badge/Agent-Skill-7c3aed)](skills/swanlab-skill/SKILL.md)
-[![Skill Version](https://img.shields.io/badge/Skill-v0.2.5-7c3aed)](skills/swanlab-skill/SKILL.md)
+[![Skill Version](https://img.shields.io/badge/Skill-v0.2.6-7c3aed)](skills/swanlab-skill/SKILL.md)
 [![SkillHub](https://img.shields.io/badge/SkillHub-Skill-1f8f4c)](https://skillhub.cn/skills/swanlab-skill)
+[![ModelScope Skill](https://img.shields.io/badge/ModelScope-Skill-624aff)](https://www.modelscope.cn/skills/SwanLab/swanlab-skill)
 [![License](https://img.shields.io/badge/License-MIT-d4a017)](LICENSE)
 
 这个 Skill 覆盖两类用法：用 Python SDK（`swanlab.init` / `swanlab.log` / `swanlab.finish` + 多媒体记录）写训练跟踪代码；用 `swanlab api` CLI 查询实验指标、日志、摘要与媒体。Agent 会先按任务路由读取对应的能力说明，再生成代码或执行查询，避免误用接口。

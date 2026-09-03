@@ -10,11 +10,12 @@ Read `references/SWANLAB_CONCEPTS.md` when you need to understand the data model
 
 ## Version Applicability (SDK ≥ 0.9.0)
 
-| Command                      | Applicability                                                                                                                                                                       |
-| ---------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `run series`                 | **Added in SDK `0.9.0`.** The recommended way to list an experiment's metric keys.                                                                                                  |
-| `run column` / `run columns` | **Deprecated since SDK `0.9.0` (multi-view version).** Not applicable to multi-view experiments — use `run series` instead. Only use these for legacy experiments on SDK `< 0.9.0`. |
-| All other commands           | No version restriction.                                                                                                                                                             |
+| Command                                        | Applicability                                                                                                                                                                       |
+| ---------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `run series`                                   | **Added in SDK `0.9.0`.** The recommended way to list an experiment's metric keys.                                                                                                  |
+| `run column` / `run columns`                   | **Deprecated since SDK `0.9.0` (multi-view version).** Not applicable to multi-view experiments — use `run series` instead. Only use these for legacy experiments on SDK `< 0.9.0`. |
+| `run metrics --x-axis` / `--range-type custom` | **Added after SDK `0.10.0`.** Not available in `0.10.0` or earlier — upgrade the SDK if these options are unrecognized.                                                             |
+| All other commands                             | No version restriction.                                                                                                                                                             |
 
 When the installed SDK is `< 0.9.0`, `run series` does not exist — fall back to `run columns` for key discovery.
 
@@ -273,7 +274,7 @@ swanlab api run column PATH --key KEY [OPTIONS]
 
 Get scalar metric data for specified keys.
 Keys is a comma-separated list of column keys, e.g. `loss,acc`.
-Returns `{"ok", "errmsg", "data"}` where `data.list` holds one entry per key: `key`, sampled `metrics` points (`index`/`data`/`timestamp`), and server-side statistics (`min`/`max`/`avg`/`median`/`latest`). Use `--all` to fetch all data points without sampling limit. See `SWANLAB_CONCEPTS.md > Scalar Metrics` for data structure details.
+Returns `{"ok", "errmsg", "data"}` where `data.list` holds one entry per key: `key`, sampled `metrics` points (`index`/`data`/`timestamp`), and server-side statistics (`min`/`max`/`avg`/`median`/`latest`). Use `--all` to fetch all data points without sampling limit. Pass `--x-axis <key>` to plot against a custom axis (e.g. `epoch`); see `SWANLAB_CONCEPTS.md > Scalar Metrics` for data structure details.
 
 ```bash
 swanlab api run metrics PATH --keys KEYS [OPTIONS]
@@ -283,19 +284,20 @@ swanlab api run metrics PATH --keys KEYS [OPTIONS]
 | -------- | -------- | -------------------------------------------------------- |
 | `PATH`   | yes      | Experiment path in `username/project_name/run_id` format |
 
-| Option               | Short | Default    | Description                                                                                                                                    |
-| -------------------- | ----- | ---------- | ---------------------------------------------------------------------------------------------------------------------------------------------- |
-| `--keys`             |       | (required) | Comma-separated metric keys, e.g. `loss,acc`                                                                                                   |
-| `--sample`           | `-s`  | 1500       | Sample size for scalars (>= 1). Max 1500; use `--all` for full export.                                                                         |
-| `--ignore-timestamp` |       | false      | Strip timestamps from metric data                                                                                                              |
-| `--all`              |       | false      | Fetch all data points without sampling limit                                                                                                   |
-| `--range-type`       |       | `step`     | Range filter axis: `step` or `timestamp`. Defaults to `step` when any range option is provided.                                                |
-| `--range-start`      |       | none       | Range start value (inclusive). For `step` type: step number (int >= 0). For `timestamp` type: Unix timestamp in **milliseconds** (int >= 0).   |
-| `--range-end`        |       | none       | Range end value (inclusive). Same type as `--range-start`.                                                                                     |
-| `--range-head`       |       | none       | Return only the first N data points (int >= 1). Mutually exclusive with `--range-tail`.                                                        |
-| `--range-tail`       |       | none       | Return only the last N data points (int >= 1). Mutually exclusive with `--range-head`.                                                         |
-| `--range-last`       |       | none       | Last N milliseconds of data (int >= 1). Mutually exclusive with `--range-start`/`--range-end`. Can combine with `--range-head`/`--range-tail`. |
-| `--save`             |       | off        | Save output to file                                                                                                                            |
+| Option               | Short | Default    | Description                                                                                                                                                          |
+| -------------------- | ----- | ---------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `--keys`             |       | (required) | Comma-separated metric keys, e.g. `loss,acc`                                                                                                                         |
+| `--sample`           | `-s`  | 1500       | Sample size for scalars (>= 1). Max 1500; use `--all` for full export.                                                                                               |
+| `--ignore-timestamp` |       | false      | Strip timestamps from metric data                                                                                                                                    |
+| `--all`              |       | false      | Fetch all data points without sampling limit                                                                                                                         |
+| `--x-axis`           |       | `step`     | X axis of `index` values: `step` (default), `time` / `relative_time`, or a custom x column key (e.g. `epoch`)                                                        |
+| `--range-type`       |       | `step`     | Range filter axis: `step`, `timestamp`, or `custom` (custom x value domain; requires `--x-axis <custom key>`). Defaults to `step` when any range option is provided. |
+| `--range-start`      |       | none       | Range start (inclusive). `step`/`timestamp`: non-negative integer (timestamp in **milliseconds**). `custom`: any finite float, negatives allowed.                    |
+| `--range-end`        |       | none       | Range end (inclusive). Same rules as `--range-start`.                                                                                                                |
+| `--range-head`       |       | none       | Return only the first N data points (int >= 1). Mutually exclusive with `--range-tail`.                                                                              |
+| `--range-tail`       |       | none       | Return only the last N data points (int >= 1). Mutually exclusive with `--range-head`.                                                                               |
+| `--range-last`       |       | none       | Last N milliseconds of data (int >= 1). Mutually exclusive with `--range-start`/`--range-end`. Can combine with `--range-head`/`--range-tail`.                       |
+| `--save`             |       | off        | Save output to file                                                                                                                                                  |
 
 **Range query constraints:**
 
@@ -305,6 +307,8 @@ swanlab api run metrics PATH --keys KEYS [OPTIONS]
 - `--range-head`/`--range-tail` can be combined with `--range-last` or `--range-start`/`--range-end`.
 - Range query is only supported for SCALAR metrics. It downloads CSV data and applies client-side filtering.
 - When using `--range-type timestamp`, each CSV row must have a timestamp column. Rows missing timestamps are skipped with a warning.
+- `--x-axis time` / `--x-axis relative_time` are not supported in CSV mode (`--all` or any range option); use the default sampled mode or a custom x key instead.
+- `--range-type custom` filters on custom x values and requires `--x-axis <custom column key>`.
 
 **Quick examples:**
 
@@ -323,6 +327,12 @@ swanlab api run metrics PATH --keys loss --range-last 300000
 
 # Get last 30 data points
 swanlab api run metrics PATH --keys loss --range-tail 30
+
+# Plot loss against a custom x axis (recorded via define_metric(x_axis="epoch"))
+swanlab api run metrics PATH --keys loss --x-axis epoch
+
+# Filter by custom x value domain (floats / negatives allowed)
+swanlab api run metrics PATH --keys loss --x-axis lr --range-type custom --range-start 1e-4 --range-end 1e-3
 ```
 
 > **Tip**: For large metric data, use `--save` to write JSON to file, then plot with `scripts/plot_metrics.py --data file.json -k loss`. For quick stats, prefer `run summary` over full metrics.
