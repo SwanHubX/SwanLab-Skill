@@ -1,7 +1,7 @@
 ---
 name: swanlab-skill
 metadata:
-  version: "0.2.5"
+  version: "0.2.6"
 description: >
   Interact with SwanLab — both writing tracking code (init/log/finish/multimedia) and querying
   experiment data via CLI (`swanlab api`). Use this skill when the user wants to write training
