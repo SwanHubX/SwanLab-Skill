@@ -86,6 +86,26 @@ swanlab.log({"loss": 0.3, "accuracy": 0.95}, step=10)  # explicit step
 - Values can be `int`, `float`, or `str`
 - `step` must be a non-negative integer
 
+### Custom X Axis — `swanlab.define_metric()` (SDK ≥ 0.10.0)
+
+Plot a metric against another metric (e.g. `epoch`) instead of the default `step`. Call before `swanlab.log`:
+
+```python
+swanlab.define_metric("train/loss", x_axis="train/epoch")
+
+for epoch in range(num_epochs):
+    swanlab.log({"train/epoch": epoch})
+    swanlab.log({"train/loss": loss})  # auto-picks up the latest train/epoch value
+```
+
+- `x_axis` accepts a metric key or built-in `"_step"` / `"_relative_time"`; system metric keys are rejected
+- Log X before Y — `step_sync` auto-fills each Y with the latest X value (a late X reuses the previous value with a warning)
+- X is assumed monotonic: the same X value keeps only the first Y point
+- `key` supports a trailing `*` glob (e.g. `"train/*"`); exact match wins over longer-prefix globs
+- Other params: `section_name` (chart grouping), `hidden` (fold chart into HIDDEN group), `overwrite` (reset unspecified fields)
+- Definitions only take effect before the key is first logged; media metrics ignore `x_axis`
+- Query the recorded data with `run metrics --x-axis <key>` — see `CLI_REFERENCE.md > run metrics`
+
 ---
 
 ## 4. Log Media — Two Styles

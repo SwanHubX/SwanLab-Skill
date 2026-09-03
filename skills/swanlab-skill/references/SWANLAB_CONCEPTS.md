@@ -149,12 +149,10 @@ Full response structure (SDK `Experiment.metrics()` / CLI `run metrics`; CLI wra
 
 **Sampling**: By default, `--sample 1500` returns downsampled data for visualization. Use `--all` to fetch all data points without sampling limit.
 
-**Custom X Axis** (`--x-axis`): metrics recorded with `define_metric(x_axis=...)` can be queried against that axis instead of `step`:
+**Custom X Axis**: scalars are plotted against the system `step` by default; `swanlab.define_metric(key, x_axis=...)` (SDK ≥ 0.10.0, usage see `SDK_QUICKSTART.md > Custom X Axis`) binds a metric to another axis (e.g. `epoch`). X is assumed monotonic — the same X value keeps only the first Y point, so queried data has at most one Y per X (unless X went backwards).
 
-- `x_axis` accepts `step` (default), `time` / `relative_time` (built-in), or any custom column key (e.g. `epoch`).
-- Each entry echoes `xAxis` describing what `index` means: `{"type": "step"}`, `{"type": "SYSTEM", "key": "time"}`, or `{"type": "CUSTOM", "key": "epoch"}`.
-- CSV mode (`--all` / range query) under a custom axis: points carry `step`/`value`/`timestamp` plus `index` (the custom x value). Missing cells become `NaN` placeholders so per-key lists stay aligned (the CLI renders `NaN` as `null`). Sampled mode drops such points server-side instead.
-- `time` / `relative_time` axes are unavailable in CSV mode.
+- **Query side**: `run metrics --x-axis <key>` (or SDK `metrics(x_axis=...)`) fetches points against that axis — `step` (default), `time` / `relative_time` (built-in), or any custom column key. Each entry echoes `xAxis` describing what `index` means: `{"type": "step"}`, `{"type": "SYSTEM", "key": "time"}`, or `{"type": "CUSTOM", "key": "epoch"}`.
+- CSV mode (`--all` / range query) under a custom axis: points carry `step`/`value`/`timestamp` plus `index` (the custom x value). Missing cells become `NaN` placeholders so per-key lists stay aligned (the CLI renders `NaN` as `null`). Sampled mode drops such points server-side instead. `time` / `relative_time` axes are unavailable in CSV mode.
 
 **Range Query** (client-side CSV filtering): When you need only a subset of scalar data points, use range query options to download the full CSV and filter client-side:
 

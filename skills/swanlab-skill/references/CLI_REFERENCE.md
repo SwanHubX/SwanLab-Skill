@@ -10,11 +10,12 @@ Read `references/SWANLAB_CONCEPTS.md` when you need to understand the data model
 
 ## Version Applicability (SDK ≥ 0.9.0)
 
-| Command                      | Applicability                                                                                                                                                                       |
-| ---------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `run series`                 | **Added in SDK `0.9.0`.** The recommended way to list an experiment's metric keys.                                                                                                  |
-| `run column` / `run columns` | **Deprecated since SDK `0.9.0` (multi-view version).** Not applicable to multi-view experiments — use `run series` instead. Only use these for legacy experiments on SDK `< 0.9.0`. |
-| All other commands           | No version restriction.                                                                                                                                                             |
+| Command                                        | Applicability                                                                                                                                                                       |
+| ---------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `run series`                                   | **Added in SDK `0.9.0`.** The recommended way to list an experiment's metric keys.                                                                                                  |
+| `run column` / `run columns`                   | **Deprecated since SDK `0.9.0` (multi-view version).** Not applicable to multi-view experiments — use `run series` instead. Only use these for legacy experiments on SDK `< 0.9.0`. |
+| `run metrics --x-axis` / `--range-type custom` | **Added after SDK `0.10.0`.** Not available in `0.10.0` or earlier — upgrade the SDK if these options are unrecognized.                                                             |
+| All other commands                             | No version restriction.                                                                                                                                                             |
 
 When the installed SDK is `< 0.9.0`, `run series` does not exist — fall back to `run columns` for key discovery.
 
