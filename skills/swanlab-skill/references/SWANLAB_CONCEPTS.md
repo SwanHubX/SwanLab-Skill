@@ -449,7 +449,9 @@ Multiple filters combined:
 | `SWANLAB_API_HOST` | API server URL (default `https://api.swanlab.cn`) |
 | `SWANLAB_WEB_HOST` | Web dashboard URL (default `https://swanlab.cn`)  |
 | `SWANLAB_LOG_DIR`  | Custom local log directory (default `./swanlog`)  |
-| `SWANLAB_SAVE_DIR` | Root dir for SwanLab files (default `~/.swanlab`) |
+| `SWANLAB_ROOT`     | Root dir for SwanLab files (default `~/.swanlab`) |
+
+> Legacy aliases still honored for backward compatibility: `SWANLAB_LOGDIR` → `SWANLAB_LOG_DIR`, `SWANLAB_SAVE_DIR` → `SWANLAB_ROOT`.
 
 ---
 

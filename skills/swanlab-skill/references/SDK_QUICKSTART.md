@@ -240,9 +240,14 @@ run.finish()
 When modifying `swanlab.init()` is inconvenient (e.g. framework integration):
 
 ```bash
-export SWANLAB_RESUME=must
+export SWANLAB_RUN_RESUME=must  # legacy alias: SWANLAB_RESUME
 export SWANLAB_RUN_ID=<exp_id>
 ```
+
+`must` is not the only option — see the strategy table above. It is used here because an
+explicit `id` plus the default `never` is an error, and `must` fails loudly if the target
+experiment doesn't exist (typo'd ID, wrong project). `allow` would silently create a new
+experiment instead, so your "resumed" data lands in a different run without any warning.
 
 ---
 
@@ -320,9 +325,17 @@ swanlab.finish()
 
 ### Environment Variables for Distributed
 
-| Variable              | Purpose                                |
-| --------------------- | -------------------------------------- |
-| `SWANLAB_GROUP`       | Group name for associating experiments |
-| `SWANLAB_JOB_TYPE`    | Role label, e.g. `"train"`, `"worker"` |
-| `SWANLAB_NAME`        | Experiment name                        |
-| `SWANLAB_DESCRIPTION` | Experiment description                 |
+Useful when injecting config from the training platform instead of passing args to `swanlab.init()`:
+
+| Variable                         | Purpose                                                                        |
+| -------------------------------- | ------------------------------------------------------------------------------ |
+| `SWANLAB_PROJECT_NAME`           | Project name (legacy alias: `SWANLAB_PROJ_NAME`)                               |
+| `SWANLAB_EXPERIMENT_NAME`        | Experiment name (legacy alias: `SWANLAB_EXP_NAME`)                             |
+| `SWANLAB_EXPERIMENT_GROUP`       | Group name for associating experiments (legacy alias: `SWANLAB_GROUP`)         |
+| `SWANLAB_EXPERIMENT_JOB_TYPE`    | Role label, e.g. `"train"`, `"worker"` (legacy alias: `SWANLAB_JOB_TYPE`)      |
+| `SWANLAB_EXPERIMENT_TAGS`        | Comma-separated tags, e.g. `"ddp,resnet50"` (legacy alias: `SWANLAB_TAGS`)     |
+| `SWANLAB_EXPERIMENT_DESCRIPTION` | Experiment description (legacy alias: `SWANLAB_DESCRIPTION`)                   |
+| `SWANLAB_RUN_PARALLEL`           | Parallel mode — set to `shared` so multiple processes log to one shared run    |
+
+> The nested-style names above require SDK ≥ 0.8.0. The legacy aliases still work for
+> backward compatibility; when both are set, the nested-style name takes precedence.
