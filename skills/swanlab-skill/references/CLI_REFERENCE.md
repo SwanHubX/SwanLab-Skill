@@ -30,6 +30,8 @@ Every command accepts these global authentication/override options:
 | `--api-key` | `-k`  | string | API key for authentication. Defaults to the logged-in key.                                                                                                          |
 | `--save`    |       | flag   | Save JSON output to a file in the current directory. Use `--save <filename>` for a custom name. When used bare, auto-generates `swanlab-YYYYMMDD_HHMMSS-xxxx.json`. |
 
+> `--save` always writes to the **current working directory** (there is no output-dir option) — before a multi-command analysis session, `cd` into a scratch directory (or pass an explicit `--save path/to/file.json`) to avoid littering the project root.
+
 ## Path Convention
 
 Several commands take a `PATH` argument. See `references/SWANLAB_CONCEPTS.md > Path Convention` for the full format and rules. In short:
