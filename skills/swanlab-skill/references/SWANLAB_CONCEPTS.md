@@ -12,6 +12,27 @@ The CLI (`swanlab api`) provides read-only query access to all tracked data from
 
 ---
 
+## Instances, Hosts & Credentials
+
+SwanLab exists as multiple **independent instances**:
+
+- **Public cloud**: `https://swanlab.cn` (the default)
+- **Self-hosted instances**: private deployments on custom domains (e.g. `https://dev.example.com`)
+
+**Credentials are per-instance.** An API key issued on one instance is rejected by every other instance (`401 Unauthorized`). Being logged in to instance A grants no access to instance B.
+
+**A `404 Not_Found` from a project-scoped query (`project info`, `run list`, `run info`) almost always means you are querying the wrong host — not that the project is missing.** Before concluding a project doesn't exist (or paging through `project list` hunting for it), check the host reported by `swanlab verify` and re-issue the query against the correct instance with `--host` / `--api-key`.
+
+To work against an instance other than the logged-in one (without re-login), pass per-command overrides:
+
+```bash
+swanlab api run list user/project --host https://swanlab.cn --api-key <KEY>
+```
+
+For a stretch of commands against a non-default host, export `SWANLAB_API_HOST` / `SWANLAB_API_KEY` (see Key Environment Variables) once instead of repeating the flags — this also keeps the key out of repeated terminal echo.
+
+---
+
 ## Core Entity Hierarchy
 
 ```
@@ -19,7 +40,7 @@ User (authenticated account)
 +-- Workspace (personal or team namespace, identified by username)
 |   +-- Project (groups related experiments)
 |   |   +-- Experiment / Run (a single training execution)
-|   |   |   +-- Config (input hyperparameters, set at init, immutable)
+|   |   |   +-- Config (input hyperparameters, mutable during the run via `swanlab.config`)
 |   |   |   +-- Column (a metric definition — e.g. "loss", "acc", "image")
 |   |   |   |   +-- Scalar Metrics (time-series numeric data)
 |   |   |   |   +-- Media Metrics (images, audio, video, molecules, etc.)
@@ -104,6 +125,32 @@ username/project_name/run_id    → Experiment
 
 ---
 
+## Run Object Schema (`run list` / `run info`)
+
+`run list` and `run info` return the same run-object shape — `run list` wraps it in pagination (`data.list[]` plus `data.total` / `data.page` / `data.size` / `data.pages`), `run info` returns a single object in `data`. **All field names are snake_case.**
+
+| Field                         | Description                                                                           |
+| ----------------------------- | ------------------------------------------------------------------------------------- |
+| `run_id`                      | Unique experiment identifier — use this in `username/project_name/run_id` paths       |
+| `name`                        | Display name. Free-text, **not necessarily unique** (several runs may share one name) |
+| `state`                       | `RUNNING` / `FINISHED` / `CRASHED` / `ABORTED` / `OFFLINE`                            |
+| `description`                 | Free-text description — often used for variant/ablation labels                        |
+| `created_at` / `finished_at`  | ISO 8601 UTC timestamps. The difference is the run's wall-clock duration              |
+| `created_at_ts`               | `created_at` as Unix seconds                                                          |
+| `group` / `job_type`          | Experiment group / distributed job type (empty when unused)                           |
+| `labels`                      | Tag list attached to the run                                                          |
+| `show`                        | Whether the run is visible in the UI                                                  |
+| `type`                        | Run type (e.g. `CHAPTER`)                                                             |
+| `url`                         | Full web URL of the run's chart page                                                  |
+| `user`                        | Owner object: `{username, name, avatar, status}`                                      |
+| `project_id`                  | Internal project id                                                                   |
+| `root_exp_id` / `root_pro_id` | Resume-chain ids (empty when the run was not resumed)                                 |
+| `profile`                     | Config + environment profile — see Experiment Profile below                           |
+
+> **Note**: `run list` embeds the **full `profile`** (including the bulky `requirements` / `conda` strings) in every item, so list responses can be hundreds of KB. Extract only the fields you need (pipe to `jq` / `python`) instead of dumping raw output into context.
+
+---
+
 ## Three Metric Categories
 
 Understanding which metric type to query is critical for answering "where's my data?":
@@ -164,7 +211,7 @@ Full response structure (SDK `Experiment.metrics()` / CLI `run metrics`; CLI wra
 - `--range-head`/`--range-tail` can be combined with `--range-last` or `--range-start`/`--range-end`.
 - `--range-start` must be ≤ `--range-end`.
 - When `--range-type timestamp` is used, rows missing a timestamp column are skipped.
-- Range query bypasses the sampling API entirely — it streams and filters the CSV export directly. Statistics (min/max/avg/median/latest) are still fetched via the sampling API and are **not** affected by the range filter.
+- Range query bypasses the sampling API entirely — it streams and filters the CSV export directly. Statistics (min/max/avg/median/latest) come from a separate value-stats endpoint (fetched concurrently with the CSV export) and are **not** affected by the range filter.
 
 ### Scalar Summary
 
@@ -254,9 +301,25 @@ Each experiment carries a `profile` object containing metadata about the run:
 }
 ```
 
-- **Config** = user inputs. Set once at `swanlab.init()`. Does not change during training.
+- **Config** = user inputs. Initialized at `swanlab.init(config={...})`; mutable during the run — `swanlab.config["k"] = v` / `.update()` take effect immediately and are uploaded.
 - **Metadata** = auto-collected system info (Python version, GPU model, OS, etc.).
 - **Requirements / Conda** = captured from the active Python environment.
+
+**Config entries are nested objects, not plain values.** Each config key maps to `{value, desc, sort}`:
+
+```
+{
+  "learning_rate": { "value": 0.0001, "desc": "", "sort": 0 },
+  "batch_size":    { "value": 512,    "desc": "", "sort": 1 },
+  ...
+}
+```
+
+Always read hyperparameters as `profile.config.<key>.value`. When analyzing runs, **trust config values over run names** — names are free-text and can drift out of sync with the actual config.
+
+**Metadata keys** (auto-collected): `os`, `cpu` (`{brand, cores}`), `gpu` (vendor-keyed, e.g. `nvidia: {type[], memory[], cores, cuda, driver}`), `memory`, `python`, `python_verbose`, `executable`, `command` (the training command line), `cwd`, `pid`, `hostname`, `git_info` (`[branch, commit]`), `git_remote`, `swanlab` (`{version, logdir, _monitor}`).
+
+> Metadata key names vary with the SDK version that recorded the run — the list above matches what existing experiments typically carry. Newer SDKs collect the same information under different names, e.g. `python_version` / `python_executable` instead of `python` / `executable`, a single `git` object (`{remote_url, branch, commit}`) instead of `git_info` / `git_remote`, and `swanlab.run_dir` instead of `swanlab.logdir`.
 
 ---
 
@@ -449,7 +512,9 @@ Multiple filters combined:
 | `SWANLAB_API_HOST` | API server URL (default `https://api.swanlab.cn`) |
 | `SWANLAB_WEB_HOST` | Web dashboard URL (default `https://swanlab.cn`)  |
 | `SWANLAB_LOG_DIR`  | Custom local log directory (default `./swanlog`)  |
-| `SWANLAB_SAVE_DIR` | Root dir for SwanLab files (default `~/.swanlab`) |
+| `SWANLAB_ROOT`     | Root dir for SwanLab files (default `~/.swanlab`) |
+
+> Legacy aliases still honored for backward compatibility: `SWANLAB_LOGDIR` → `SWANLAB_LOG_DIR`, `SWANLAB_SAVE_DIR` → `SWANLAB_ROOT`.
 
 ---
 

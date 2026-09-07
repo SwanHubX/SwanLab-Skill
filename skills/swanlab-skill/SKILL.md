@@ -1,7 +1,7 @@
 ---
 name: swanlab-skill
 metadata:
-  version: "0.2.5"
+  version: "0.3.0"
 description: >
   Interact with SwanLab — both writing tracking code (init/log/finish/multimedia) and querying
   experiment data via CLI (`swanlab api`). Use this skill when the user wants to write training
@@ -21,12 +21,13 @@ SwanLab is an AI training experiment tracking platform. This skill covers two us
 
 ## Reference Routing
 
-| If the user wants to...                               | Read this reference              |
-| ----------------------------------------------------- | -------------------------------- |
-| Write tracking code (init/log/finish/media)           | `references/SDK_QUICKSTART.md`   |
-| Query data via CLI (metrics/summary/logs/filter/etc.) | `references/CLI_REFERENCE.md`    |
-| Understand data model / terminology / filter syntax   | `references/SWANLAB_CONCEPTS.md` |
-| Plot metrics or compare experiments visually          | See **Scripts** below            |
+| If the user wants to...                                                | Read this reference              |
+| ---------------------------------------------------------------------- | -------------------------------- |
+| Write tracking code (init/log/finish/media)                            | `references/SDK_QUICKSTART.md`   |
+| Query data via CLI (metrics/summary/logs/filter/etc.)                  | `references/CLI_REFERENCE.md`    |
+| Understand data model / terminology / filter syntax                    | `references/SWANLAB_CONCEPTS.md` |
+| Analyze runs/projects, compare experiments, write an experiment report | `references/ANALYSIS_GUIDE.md`   |
+| Plot metrics or compare experiments visually                           | See **Scripts** below            |
 
 > **Version note (SDK ≥ 0.9.0)**: use `swanlab api run series` to discover an experiment's metric keys. `run column` / `run columns` are deprecated since `0.9.0` and do not apply to multi-view experiments — only fall back to them when the installed SDK is `< 0.9.0`. See `CLI_REFERENCE.md > Version Applicability`.
 
@@ -43,7 +44,7 @@ SwanLab is an AI training experiment tracking platform. This skill covers two us
 | `offline`  | Yes (protobuf) | No (syncable later via `swanlab sync`) | Save locally, upload to cloud later. |
 | `disabled` | No             | No                                     | Completely disable all logging.      |
 
-Default is `online` if logged in, otherwise the user is prompted interactively (or falls back to `offline`).
+Default is `online` if logged in; otherwise an interactive prompt offers login, registration, or `offline`. In non-interactive environments without an API key, init raises an error instead of falling back.
 
 ---
 
@@ -84,20 +85,23 @@ CLI commands use `username/project_name` (project) or `username/project_name/run
 
 ## Quick Disambiguation
 
-| User says...                                 | They probably mean...   | Route                            |
-| -------------------------------------------- | ----------------------- | -------------------------------- |
-| "track my training" / "log metrics"          | Write tracking code     | `SDK_QUICKSTART.md`              |
-| "log images/audio/text"                      | Log media data          | `SDK_QUICKSTART.md`              |
-| "my loss curve" / "experiment metrics"       | Query scalar data       | `CLI_REFERENCE.md > run metrics` |
-| "filter experiments"                         | Query by conditions     | `CLI_REFERENCE.md > run filter`  |
-| "my experiments" / "list runs"               | List experiments        | `CLI_REFERENCE.md > run list`    |
-| "compare runs visually"                      | Cross-experiment chart  | `scripts/runs_benchmark.py`      |
-| "plot metric chart"                          | Single-experiment chart | `scripts/plot_metrics.py`        |
-| "experiment config"                          | Hyperparameters         | `CLI_REFERENCE.md > run info`    |
-| "console output"                             | Captured logs           | `CLI_REFERENCE.md > run logs`    |
-| "what metrics are tracked"                   | Metric keys             | `CLI_REFERENCE.md > run series`  |
-| "check connectivity" / "can I reach swanlab" | Environment check       | `swanlab ping`                   |
-| "check login status" / "am I logged in"      | Verify credentials      | `swanlab verify`                 |
+| User says...                                     | They probably mean...    | Route                                     |
+| ------------------------------------------------ | ------------------------ | ----------------------------------------- |
+| "track my training" / "log metrics"              | Write tracking code      | `SDK_QUICKSTART.md`                       |
+| "log images/audio/text"                          | Log media data           | `SDK_QUICKSTART.md`                       |
+| "my loss curve" / "experiment metrics"           | Query scalar data        | `CLI_REFERENCE.md > run metrics`          |
+| "filter experiments"                             | Query by conditions      | `CLI_REFERENCE.md > run filter`           |
+| "my experiments" / "list runs"                   | List experiments         | `CLI_REFERENCE.md > run list`             |
+| "compare runs visually"                          | Cross-experiment chart   | `scripts/runs_benchmark.py`               |
+| "plot metric chart"                              | Single-experiment chart  | `scripts/plot_metrics.py`                 |
+| "experiment config"                              | Hyperparameters          | `CLI_REFERENCE.md > run info`             |
+| "console output"                                 | Captured logs            | `CLI_REFERENCE.md > run logs`             |
+| "what metrics are tracked"                       | Metric keys              | `CLI_REFERENCE.md > run series`           |
+| "check connectivity" / "can I reach swanlab"     | Environment check        | `swanlab ping`                            |
+| "check login status" / "am I logged in"          | Verify credentials       | `swanlab verify`                          |
+| "project not found" / a query returns 404        | Wrong host (most likely) | `CLI_REFERENCE.md > Troubleshooting`      |
+| run fields / run list or run info response       | Run object schema        | `SWANLAB_CONCEPTS.md > Run Object Schema` |
+| "analyze this project/run" / "experiment report" | Analysis pipeline        | `ANALYSIS_GUIDE.md`                       |
 
 ---
 
@@ -132,8 +136,9 @@ swanlab verify --local
 **Recommended pre-flight sequence**:
 
 1. `swanlab ping` → confirm the server is reachable
-2. `swanlab verify` → confirm credentials are valid
-3. Proceed with `swanlab api` queries or SDK code
+2. `swanlab verify` → confirm credentials are valid, and **note which host you are logged into**
+3. **Confirm the target project lives on that host.** SwanLab has multiple independent instances (public `swanlab.cn` + self-hosted deployments) and credentials are per-instance — see `SWANLAB_CONCEPTS.md > Instances, Hosts & Credentials`. If the project is on another instance, pass `--host` / `--api-key` on every command (or export `SWANLAB_API_HOST` / `SWANLAB_API_KEY`). A `404 Not_Found` from `project info` / `run list` means **wrong host, not a missing project** — see `CLI_REFERENCE.md > Troubleshooting`.
+4. Proceed with `swanlab api` queries or SDK code
 
 ---
 
