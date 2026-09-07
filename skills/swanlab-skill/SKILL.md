@@ -137,7 +137,7 @@ swanlab verify --local
 
 1. `swanlab ping` → confirm the server is reachable
 2. `swanlab verify` → confirm credentials are valid, and **note which host you are logged into**
-3. **Confirm the target project lives on that host.** SwanLab has multiple independent instances (public `swanlab.cn` + self-hosted deployments) and credentials are per-instance — see `SWANLAB_CONCEPTS.md > Instances, Hosts & Credentials`. If the project is on another instance, pass `--host` / `--api-key` on every command (or export `SWANLAB_API_HOST` / `SWANLAB_API_KEY`). A `404 Not_Found` ("资源未找到") from `project info` / `run list` means **wrong host, not a missing project** — see `CLI_REFERENCE.md > Troubleshooting`.
+3. **Confirm the target project lives on that host.** SwanLab has multiple independent instances (public `swanlab.cn` + self-hosted deployments) and credentials are per-instance — see `SWANLAB_CONCEPTS.md > Instances, Hosts & Credentials`. If the project is on another instance, pass `--host` / `--api-key` on every command (or export `SWANLAB_API_HOST` / `SWANLAB_API_KEY`). A `404 Not_Found` from `project info` / `run list` means **wrong host, not a missing project** — see `CLI_REFERENCE.md > Troubleshooting`.
 4. Proceed with `swanlab api` queries or SDK code
 
 ---

@@ -79,5 +79,5 @@ python scripts/plot_metrics.py --data swanlab-YYYYMMDD_HHMMSS-xxxx.json -k val/l
 
 Notes:
 
-- The scripts use the OOP `swanlab.api.Api` (needs the `swanlab` package importable) and do not read the CLI login state — pass `--host` / `--api-key` on non-default instances.
+- Scripts use the OOP `swanlab.api.Api`, which reuses the saved login state (`.netrc` / `SWANLAB_API_KEY`): no flags needed on the logged-in default instance; pass `--host` / `--api-key` only for other instances.
 - Scripts render static matplotlib images. For interactive ECharts needs, implement equivalent rendering over the same fetched JSON (from `run metrics --save` or the scripts' `--data` format); the data-acquisition half of `plot_metrics.py` is the reference to follow.

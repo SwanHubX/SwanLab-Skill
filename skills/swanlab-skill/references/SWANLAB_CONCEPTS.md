@@ -19,9 +19,9 @@ SwanLab exists as multiple **independent instances**:
 - **Public cloud**: `https://swanlab.cn` (the default)
 - **Self-hosted instances**: private deployments on custom domains (e.g. `https://dev.example.com`)
 
-**Credentials are per-instance.** An API key issued on one instance is rejected by every other instance (`401 Unauthorized` / "API Key不存在"). Being logged in to instance A grants no access to instance B.
+**Credentials are per-instance.** An API key issued on one instance is rejected by every other instance (`401 Unauthorized`). Being logged in to instance A grants no access to instance B.
 
-**A `404 Not_Found` ("资源未找到") from a project-scoped query (`project info`, `run list`, `run info`) almost always means you are querying the wrong host — not that the project is missing.** Before concluding a project doesn't exist (or paging through `project list` hunting for it), check the host reported by `swanlab verify` and re-issue the query against the correct instance with `--host` / `--api-key`.
+**A `404 Not_Found` from a project-scoped query (`project info`, `run list`, `run info`) almost always means you are querying the wrong host — not that the project is missing.** Before concluding a project doesn't exist (or paging through `project list` hunting for it), check the host reported by `swanlab verify` and re-issue the query against the correct instance with `--host` / `--api-key`.
 
 To work against an instance other than the logged-in one (without re-login), pass per-command overrides:
 
