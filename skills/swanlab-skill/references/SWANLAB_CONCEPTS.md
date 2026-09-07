@@ -144,7 +144,7 @@ username/project_name/run_id    → Experiment
 | `url`                         | Full web URL of the run's chart page                                                  |
 | `user`                        | Owner object: `{username, name, avatar, status}`                                      |
 | `project_id`                  | Internal project id                                                                   |
-| `root_exp_id` / `root_pro_id` | Resume-chain ids (null when the run was not resumed)                                  |
+| `root_exp_id` / `root_pro_id` | Resume-chain ids (empty when the run was not resumed)                                 |
 | `profile`                     | Config + environment profile — see Experiment Profile below                           |
 
 > **Note**: `run list` embeds the **full `profile`** (including the bulky `requirements` / `conda` strings) in every item, so list responses can be hundreds of KB. Extract only the fields you need (pipe to `jq` / `python`) instead of dumping raw output into context.
@@ -318,6 +318,8 @@ Each experiment carries a `profile` object containing metadata about the run:
 Always read hyperparameters as `profile.config.<key>.value`. When analyzing runs, **trust config values over run names** — names are free-text and can drift out of sync with the actual config.
 
 **Metadata keys** (auto-collected): `os`, `cpu` (`{brand, cores}`), `gpu` (vendor-keyed, e.g. `nvidia: {type[], memory[], cores, cuda, driver}`), `memory`, `python`, `python_verbose`, `executable`, `command` (the training command line), `cwd`, `pid`, `hostname`, `git_info` (`[branch, commit]`), `git_remote`, `swanlab` (`{version, logdir, _monitor}`).
+
+> Metadata key names vary with the SDK version that recorded the run — the list above matches what existing experiments typically carry. Newer SDKs collect the same information under different names, e.g. `python_version` / `python_executable` instead of `python` / `executable`, a single `git` object (`{remote_url, branch, commit}`) instead of `git_info` / `git_remote`, and `swanlab.run_dir` instead of `swanlab.logdir`.
 
 ---
 
