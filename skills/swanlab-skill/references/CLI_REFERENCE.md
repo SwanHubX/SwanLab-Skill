@@ -121,7 +121,7 @@ swanlab api project create -n NAME [OPTIONS]
 
 #### `swanlab api run info PATH`
 
-Get experiment details.
+Get experiment details. Returns the full run object — see `SWANLAB_CONCEPTS.md > Run Object Schema` for the response fields (`run_id`, `state`, `created_at` / `finished_at`, `profile`, etc.).
 
 ```bash
 swanlab api run info PATH [--save [FILENAME]] [--host HOST] [--api-key KEY]
@@ -133,7 +133,7 @@ swanlab api run info PATH [--save [FILENAME]] [--host HOST] [--api-key KEY]
 
 #### `swanlab api run list PROJECT_PATH`
 
-List experiments under a project. Paginated by default.
+List experiments under a project. Paginated by default. Items use the run-object shape documented in `SWANLAB_CONCEPTS.md > Run Object Schema` — note every item embeds its full `profile`, so extract only the fields you need rather than dumping the raw JSON.
 
 ```bash
 swanlab api run list PROJECT_PATH [OPTIONS]
@@ -331,6 +331,8 @@ swanlab api run metrics PATH --keys loss --range-tail 30
 
 Get scalar metric summaries (statistics) for an experiment. Returns per-key aggregates: last step/value, min/max, avg, median, stdDev. See `SWANLAB_CONCEPTS.md > Scalar Summary` for response structure details.
 
+> **Note**: summary only returns each key's **latest value** (plus aggregates) — not the time series. To read the values of a specific key over steps, use `swanlab api run metrics PATH --keys KEY`.
+
 ```bash
 swanlab api run summary PATH [--keys KEYS] [--save [FILENAME]] [--host HOST] [--api-key KEY]
 ```
@@ -480,6 +482,18 @@ Show system usage summary for the self-hosted instance (root only). Includes agg
 ```bash
 swanlab api self-hosted summary [--save [FILENAME]] [--host HOST] [--api-key KEY]
 ```
+
+---
+
+## Troubleshooting
+
+| Symptom                                                                   | Likely cause                                                                                                      | Fix                                                                                                                                                                                                                      |
+| ------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `project info` / `run list` / `run info` → `404 Not_Found` ("资源未找到") | **Wrong host** — the project lives on a different instance (e.g. public `swanlab.cn` vs a self-hosted deployment) | Run `swanlab verify` to see which host you are on; re-issue with `--host <URL> --api-key <KEY>` for the correct instance. Do NOT assume the project name is wrong, and do NOT keep paging `project list` hunting for it. |
+| `401 Unauthorized` ("API Key不存在") after passing `--host`               | The API key belongs to a different instance — credentials are per-instance and never work across hosts            | Use the key issued by the target instance (from its web UI), or `swanlab login --host <URL>` against it.                                                                                                                 |
+| Empty stdout from a `swanlab api` call                                    | Transient network/transport failure — progress/error logs go to stderr, so a pipe can silently hide the failure   | Check the exit code and stderr before parsing stdout as JSON; retry the command.                                                                                                                                         |
+
+See `SWANLAB_CONCEPTS.md > Instances, Hosts & Credentials` for the full multi-instance model.
 
 ---
 

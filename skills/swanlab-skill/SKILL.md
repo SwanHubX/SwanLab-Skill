@@ -84,20 +84,22 @@ CLI commands use `username/project_name` (project) or `username/project_name/run
 
 ## Quick Disambiguation
 
-| User says...                                 | They probably mean...   | Route                            |
-| -------------------------------------------- | ----------------------- | -------------------------------- |
-| "track my training" / "log metrics"          | Write tracking code     | `SDK_QUICKSTART.md`              |
-| "log images/audio/text"                      | Log media data          | `SDK_QUICKSTART.md`              |
-| "my loss curve" / "experiment metrics"       | Query scalar data       | `CLI_REFERENCE.md > run metrics` |
-| "filter experiments"                         | Query by conditions     | `CLI_REFERENCE.md > run filter`  |
-| "my experiments" / "list runs"               | List experiments        | `CLI_REFERENCE.md > run list`    |
-| "compare runs visually"                      | Cross-experiment chart  | `scripts/runs_benchmark.py`      |
-| "plot metric chart"                          | Single-experiment chart | `scripts/plot_metrics.py`        |
-| "experiment config"                          | Hyperparameters         | `CLI_REFERENCE.md > run info`    |
-| "console output"                             | Captured logs           | `CLI_REFERENCE.md > run logs`    |
-| "what metrics are tracked"                   | Metric keys             | `CLI_REFERENCE.md > run series`  |
-| "check connectivity" / "can I reach swanlab" | Environment check       | `swanlab ping`                   |
-| "check login status" / "am I logged in"      | Verify credentials      | `swanlab verify`                 |
+| User says...                                 | They probably mean...    | Route                                     |
+| -------------------------------------------- | ------------------------ | ----------------------------------------- |
+| "track my training" / "log metrics"          | Write tracking code      | `SDK_QUICKSTART.md`                       |
+| "log images/audio/text"                      | Log media data           | `SDK_QUICKSTART.md`                       |
+| "my loss curve" / "experiment metrics"       | Query scalar data        | `CLI_REFERENCE.md > run metrics`          |
+| "filter experiments"                         | Query by conditions      | `CLI_REFERENCE.md > run filter`           |
+| "my experiments" / "list runs"               | List experiments         | `CLI_REFERENCE.md > run list`             |
+| "compare runs visually"                      | Cross-experiment chart   | `scripts/runs_benchmark.py`               |
+| "plot metric chart"                          | Single-experiment chart  | `scripts/plot_metrics.py`                 |
+| "experiment config"                          | Hyperparameters          | `CLI_REFERENCE.md > run info`             |
+| "console output"                             | Captured logs            | `CLI_REFERENCE.md > run logs`             |
+| "what metrics are tracked"                   | Metric keys              | `CLI_REFERENCE.md > run series`           |
+| "check connectivity" / "can I reach swanlab" | Environment check        | `swanlab ping`                            |
+| "check login status" / "am I logged in"      | Verify credentials       | `swanlab verify`                          |
+| "project not found" / a query returns 404    | Wrong host (most likely) | `CLI_REFERENCE.md > Troubleshooting`      |
+| run fields / run list or run info response   | Run object schema        | `SWANLAB_CONCEPTS.md > Run Object Schema` |
 
 ---
 
@@ -132,8 +134,9 @@ swanlab verify --local
 **Recommended pre-flight sequence**:
 
 1. `swanlab ping` → confirm the server is reachable
-2. `swanlab verify` → confirm credentials are valid
-3. Proceed with `swanlab api` queries or SDK code
+2. `swanlab verify` → confirm credentials are valid, and **note which host you are logged into**
+3. **Confirm the target project lives on that host.** SwanLab has multiple independent instances (public `swanlab.cn` + self-hosted deployments) and credentials are per-instance — see `SWANLAB_CONCEPTS.md > Instances, Hosts & Credentials`. If the project is on another instance, pass `--host` / `--api-key` on every command (or export `SWANLAB_API_HOST` / `SWANLAB_API_KEY`). A `404 Not_Found` ("资源未找到") from `project info` / `run list` means **wrong host, not a missing project** — see `CLI_REFERENCE.md > Troubleshooting`.
+4. Proceed with `swanlab api` queries or SDK code
 
 ---
 

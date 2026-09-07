@@ -12,6 +12,27 @@ The CLI (`swanlab api`) provides read-only query access to all tracked data from
 
 ---
 
+## Instances, Hosts & Credentials
+
+SwanLab exists as multiple **independent instances**:
+
+- **Public cloud**: `https://swanlab.cn` (the default)
+- **Self-hosted instances**: private deployments on custom domains (e.g. `https://dev.example.com`)
+
+**Credentials are per-instance.** An API key issued on one instance is rejected by every other instance (`401 Unauthorized` / "API Key不存在"). Being logged in to instance A grants no access to instance B.
+
+**A `404 Not_Found` ("资源未找到") from a project-scoped query (`project info`, `run list`, `run info`) almost always means you are querying the wrong host — not that the project is missing.** Before concluding a project doesn't exist (or paging through `project list` hunting for it), check the host reported by `swanlab verify` and re-issue the query against the correct instance with `--host` / `--api-key`.
+
+To work against an instance other than the logged-in one (without re-login), pass per-command overrides:
+
+```bash
+swanlab api run list user/project --host https://swanlab.cn --api-key <KEY>
+```
+
+For a stretch of commands against a non-default host, export `SWANLAB_API_HOST` / `SWANLAB_API_KEY` (see Key Environment Variables) once instead of repeating the flags — this also keeps the key out of repeated terminal echo.
+
+---
+
 ## Core Entity Hierarchy
 
 ```
@@ -101,6 +122,32 @@ username/project_name/run_id    → Experiment
 - `username`: The workspace's unique identifier.
 - `project_name`: Human-readable project name (1-100 chars, `0-9a-zA-Z-_.+`).
 - `run_id`: A unique identifier for each experiment. Auto-generated as a short experiment_id/run_id by default, not acutally CUID, or user-supplied custom ID (1–512 chars, no `<>:"/\|?*#%` or control chars).
+
+---
+
+## Run Object Schema (`run list` / `run info`)
+
+`run list` and `run info` return the same run-object shape — `run list` wraps it in pagination (`data.list[]` plus `data.total` / `data.page` / `data.size` / `data.pages`), `run info` returns a single object in `data`. **All field names are snake_case.**
+
+| Field                         | Description                                                                               |
+| ----------------------------- | ----------------------------------------------------------------------------------------- |
+| `run_id`                      | Unique experiment identifier — use this in `username/project_name/run_id` paths           |
+| `name`                        | Display name. Free-text, **not necessarily unique** (several runs may share one name)     |
+| `state`                       | `RUNNING` / `FINISHED` / `CRASHED` / `ABORTED` / `OFFLINE`                                |
+| `description`                 | Free-text description — users often put ablation/variant labels here (e.g. "3. MQA + LN") |
+| `created_at` / `finished_at`  | ISO 8601 UTC timestamps. The difference is the run's wall-clock duration                  |
+| `created_at_ts`               | `created_at` as Unix seconds                                                              |
+| `group` / `job_type`          | Experiment group / distributed job type (empty when unused)                               |
+| `labels`                      | Tag list attached to the run                                                              |
+| `show`                        | Whether the run is visible in the UI                                                      |
+| `type`                        | Run type (e.g. `CHAPTER`)                                                                 |
+| `url`                         | Full web URL of the run's chart page                                                      |
+| `user`                        | Owner object: `{username, name, avatar, status}`                                          |
+| `project_id`                  | Internal project id                                                                       |
+| `root_exp_id` / `root_pro_id` | Resume-chain ids (null when the run was not resumed)                                      |
+| `profile`                     | Config + environment profile — see Experiment Profile below                               |
+
+> **Note**: `run list` embeds the **full `profile`** (including the bulky `requirements` / `conda` strings) in every item, so list responses can be hundreds of KB. Extract only the fields you need (pipe to `jq` / `python`) instead of dumping raw output into context.
 
 ---
 
@@ -257,6 +304,20 @@ Each experiment carries a `profile` object containing metadata about the run:
 - **Config** = user inputs. Initialized at `swanlab.init(config={...})`; mutable during the run — `swanlab.config["k"] = v` / `.update()` take effect immediately and are uploaded.
 - **Metadata** = auto-collected system info (Python version, GPU model, OS, etc.).
 - **Requirements / Conda** = captured from the active Python environment.
+
+**Config entries are nested objects, not plain values.** Each config key maps to `{value, desc, sort}`:
+
+```
+{
+  "learning_rate": { "value": 0.0001, "desc": "", "sort": 0 },
+  "batch_size":    { "value": 512,    "desc": "", "sort": 1 },
+  ...
+}
+```
+
+Always read hyperparameters as `profile.config.<key>.value`. When analyzing runs, **trust config values over run names** — names are free-text and can drift out of sync with the actual config (e.g. a run named `MHA-12` whose config says `num_blocks = 4`).
+
+**Metadata keys** (auto-collected): `os`, `cpu` (`{brand, cores}`), `gpu` (vendor-keyed, e.g. `nvidia: {type[], memory[], cores, cuda, driver}`), `memory`, `python`, `python_verbose`, `executable`, `command` (the training command line), `cwd`, `pid`, `hostname`, `git_info` (`[branch, commit]`), `git_remote`, `swanlab` (`{version, logdir, _monitor}`).
 
 ---
 
