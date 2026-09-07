@@ -73,7 +73,17 @@ python scripts/runs_benchmark.py user/proj/run1 user/proj/run2 -k loss,acc --nor
 python scripts/runs_benchmark.py --data benchmark_data.json -k loss              # from saved JSON
 ```
 
-Both scripts require `swanlab login` (or `--api-key` / `--host` flags).
+### `scripts/plot_interactive.py` — Interactive HTML Chart (ECharts)
+
+Trigger when the user wants an **interactive chart** (zoom, hover tooltips) or an HTML artifact instead of a static image. Renders one chart per key with all experiments overlaid, as a single self-contained HTML file (ECharts is downloaded once and cached; `--data` mode needs no third-party packages).
+
+```bash
+python scripts/plot_interactive.py user/proj/run1 --keys loss,acc -o chart.html
+python scripts/plot_interactive.py user/proj/run1 user/proj/run2 -k loss        # multi-run overlay
+python scripts/plot_interactive.py --data metrics.json -k loss,acc -o chart.html  # from saved JSON
+```
+
+Fetching from the API requires `swanlab login` (or `--api-key` / `--host` flags); `--data` mode works offline — `plot_interactive.py --data` even runs on bare Python (no third-party packages).
 
 ---
 
