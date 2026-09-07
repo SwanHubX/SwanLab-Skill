@@ -19,7 +19,7 @@ User (authenticated account)
 +-- Workspace (personal or team namespace, identified by username)
 |   +-- Project (groups related experiments)
 |   |   +-- Experiment / Run (a single training execution)
-|   |   |   +-- Config (input hyperparameters, set at init, immutable)
+|   |   |   +-- Config (input hyperparameters, mutable during the run via `swanlab.config`)
 |   |   |   +-- Column (a metric definition — e.g. "loss", "acc", "image")
 |   |   |   |   +-- Scalar Metrics (time-series numeric data)
 |   |   |   |   +-- Media Metrics (images, audio, video, molecules, etc.)
@@ -164,7 +164,7 @@ Full response structure (SDK `Experiment.metrics()` / CLI `run metrics`; CLI wra
 - `--range-head`/`--range-tail` can be combined with `--range-last` or `--range-start`/`--range-end`.
 - `--range-start` must be ≤ `--range-end`.
 - When `--range-type timestamp` is used, rows missing a timestamp column are skipped.
-- Range query bypasses the sampling API entirely — it streams and filters the CSV export directly. Statistics (min/max/avg/median/latest) are still fetched via the sampling API and are **not** affected by the range filter.
+- Range query bypasses the sampling API entirely — it streams and filters the CSV export directly. Statistics (min/max/avg/median/latest) come from a separate value-stats endpoint (fetched concurrently with the CSV export) and are **not** affected by the range filter.
 
 ### Scalar Summary
 
@@ -254,7 +254,7 @@ Each experiment carries a `profile` object containing metadata about the run:
 }
 ```
 
-- **Config** = user inputs. Set once at `swanlab.init()`. Does not change during training.
+- **Config** = user inputs. Initialized at `swanlab.init(config={...})`; mutable during the run — `swanlab.config["k"] = v` / `.update()` take effect immediately and are uploaded.
 - **Metadata** = auto-collected system info (Python version, GPU model, OS, etc.).
 - **Requirements / Conda** = captured from the active Python environment.
 

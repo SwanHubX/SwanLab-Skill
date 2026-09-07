@@ -82,7 +82,7 @@ swanlab.log({"loss": 0.3, "accuracy": 0.95}, step=10)  # explicit step
 ```
 
 - Keys support `/` for nested grouping: `swanlab.log({"train/loss": 0.5, "val/loss": 0.6})`
-- Nested dicts are auto-flattened: `{"train": {"loss": 0.5}}` → `"train.loss"`
+- Nested dicts are auto-flattened using `/`: `{"train": {"loss": 0.5}}` → `"train/loss"`
 - Values can be `int`, `float`, or `str`
 - `step` must be a non-negative integer
 

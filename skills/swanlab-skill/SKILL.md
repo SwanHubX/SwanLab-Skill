@@ -43,7 +43,7 @@ SwanLab is an AI training experiment tracking platform. This skill covers two us
 | `offline`  | Yes (protobuf) | No (syncable later via `swanlab sync`) | Save locally, upload to cloud later. |
 | `disabled` | No             | No                                     | Completely disable all logging.      |
 
-Default is `online` if logged in, otherwise the user is prompted interactively (or falls back to `offline`).
+Default is `online` if logged in; otherwise an interactive prompt offers login, registration, or `offline`. In non-interactive environments without an API key, init raises an error instead of falling back.
 
 ---
 
