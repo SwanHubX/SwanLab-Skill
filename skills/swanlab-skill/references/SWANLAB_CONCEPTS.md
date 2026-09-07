@@ -129,23 +129,23 @@ username/project_name/run_id    → Experiment
 
 `run list` and `run info` return the same run-object shape — `run list` wraps it in pagination (`data.list[]` plus `data.total` / `data.page` / `data.size` / `data.pages`), `run info` returns a single object in `data`. **All field names are snake_case.**
 
-| Field                         | Description                                                                               |
-| ----------------------------- | ----------------------------------------------------------------------------------------- |
-| `run_id`                      | Unique experiment identifier — use this in `username/project_name/run_id` paths           |
-| `name`                        | Display name. Free-text, **not necessarily unique** (several runs may share one name)     |
-| `state`                       | `RUNNING` / `FINISHED` / `CRASHED` / `ABORTED` / `OFFLINE`                                |
-| `description`                 | Free-text description — users often put ablation/variant labels here (e.g. "3. MQA + LN") |
-| `created_at` / `finished_at`  | ISO 8601 UTC timestamps. The difference is the run's wall-clock duration                  |
-| `created_at_ts`               | `created_at` as Unix seconds                                                              |
-| `group` / `job_type`          | Experiment group / distributed job type (empty when unused)                               |
-| `labels`                      | Tag list attached to the run                                                              |
-| `show`                        | Whether the run is visible in the UI                                                      |
-| `type`                        | Run type (e.g. `CHAPTER`)                                                                 |
-| `url`                         | Full web URL of the run's chart page                                                      |
-| `user`                        | Owner object: `{username, name, avatar, status}`                                          |
-| `project_id`                  | Internal project id                                                                       |
-| `root_exp_id` / `root_pro_id` | Resume-chain ids (null when the run was not resumed)                                      |
-| `profile`                     | Config + environment profile — see Experiment Profile below                               |
+| Field                         | Description                                                                           |
+| ----------------------------- | ------------------------------------------------------------------------------------- |
+| `run_id`                      | Unique experiment identifier — use this in `username/project_name/run_id` paths       |
+| `name`                        | Display name. Free-text, **not necessarily unique** (several runs may share one name) |
+| `state`                       | `RUNNING` / `FINISHED` / `CRASHED` / `ABORTED` / `OFFLINE`                            |
+| `description`                 | Free-text description — often used for variant/ablation labels                        |
+| `created_at` / `finished_at`  | ISO 8601 UTC timestamps. The difference is the run's wall-clock duration              |
+| `created_at_ts`               | `created_at` as Unix seconds                                                          |
+| `group` / `job_type`          | Experiment group / distributed job type (empty when unused)                           |
+| `labels`                      | Tag list attached to the run                                                          |
+| `show`                        | Whether the run is visible in the UI                                                  |
+| `type`                        | Run type (e.g. `CHAPTER`)                                                             |
+| `url`                         | Full web URL of the run's chart page                                                  |
+| `user`                        | Owner object: `{username, name, avatar, status}`                                      |
+| `project_id`                  | Internal project id                                                                   |
+| `root_exp_id` / `root_pro_id` | Resume-chain ids (null when the run was not resumed)                                  |
+| `profile`                     | Config + environment profile — see Experiment Profile below                           |
 
 > **Note**: `run list` embeds the **full `profile`** (including the bulky `requirements` / `conda` strings) in every item, so list responses can be hundreds of KB. Extract only the fields you need (pipe to `jq` / `python`) instead of dumping raw output into context.
 
@@ -315,7 +315,7 @@ Each experiment carries a `profile` object containing metadata about the run:
 }
 ```
 
-Always read hyperparameters as `profile.config.<key>.value`. When analyzing runs, **trust config values over run names** — names are free-text and can drift out of sync with the actual config (e.g. a run named `MHA-12` whose config says `num_blocks = 4`).
+Always read hyperparameters as `profile.config.<key>.value`. When analyzing runs, **trust config values over run names** — names are free-text and can drift out of sync with the actual config.
 
 **Metadata keys** (auto-collected): `os`, `cpu` (`{brand, cores}`), `gpu` (vendor-keyed, e.g. `nvidia: {type[], memory[], cores, cuda, driver}`), `memory`, `python`, `python_verbose`, `executable`, `command` (the training command line), `cwd`, `pid`, `hostname`, `git_info` (`[branch, commit]`), `git_remote`, `swanlab` (`{version, logdir, _monitor}`).
 
