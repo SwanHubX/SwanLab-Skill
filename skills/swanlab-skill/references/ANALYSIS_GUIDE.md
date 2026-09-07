@@ -61,15 +61,14 @@ run list → (optional) run filter → per-run info + summary → synthesize
 
 Charts are a pipeline step, not a separate task:
 
-| Scenario                   | Script                        |
-| -------------------------- | ----------------------------- |
-| One run, several keys      | `scripts/plot_metrics.py`     |
-| Same key across runs       | `scripts/runs_benchmark.py`   |
-| Interactive HTML (ECharts) | `scripts/plot_interactive.py` |
-| Unequal-length runs        | add `--normalize`             |
-| Only final numbers needed  | no chart — use `run summary`  |
+| Scenario                  | Script                       |
+| ------------------------- | ---------------------------- |
+| One run, several keys     | `scripts/plot_metrics.py`    |
+| Same key across runs      | `scripts/runs_benchmark.py`  |
+| Unequal-length runs       | add `--normalize`            |
+| Only final numbers needed | no chart — use `run summary` |
 
-**Data bridge (no double-fetching)**: all three scripts accept `--data FILE.json` and skip API calls:
+**Data bridge (no double-fetching)**: both scripts accept `--data FILE.json` and skip API calls:
 
 ```bash
 swanlab api run metrics user/proj/RUN_ID --keys val/loss --save
@@ -81,4 +80,4 @@ python scripts/plot_metrics.py --data swanlab-YYYYMMDD_HHMMSS-xxxx.json -k val/l
 Notes:
 
 - Scripts use the OOP `swanlab.api.Api`, which reuses the saved login state (`.netrc` / `SWANLAB_API_KEY`): no flags needed on the logged-in default instance; pass `--host` / `--api-key` only for other instances.
-- `plot_metrics.py` / `runs_benchmark.py` render static matplotlib images. For interactive ECharts output, use `plot_interactive.py` — it consumes the same fetched JSON (`run metrics --save` output, or the multi-experiment `{"experiments": [...]}` format of `runs_benchmark.py --data`) and emits one self-contained HTML file. Its `--data` mode is pure stdlib; ECharts is fetched from CDN once and cached at `~/.cache/swanlab-skill/echarts.min.js`.
+- Scripts render static matplotlib images. For interactive ECharts needs, implement equivalent rendering over the same fetched JSON (from `run metrics --save` or the scripts' `--data` format); the data-acquisition half of `plot_metrics.py` is the reference to follow.
