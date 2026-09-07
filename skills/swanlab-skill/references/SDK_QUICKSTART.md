@@ -327,15 +327,15 @@ swanlab.finish()
 
 Useful when injecting config from the training platform instead of passing args to `swanlab.init()`:
 
-| Variable                         | Purpose                                                                        |
-| -------------------------------- | ------------------------------------------------------------------------------ |
-| `SWANLAB_PROJECT_NAME`           | Project name (legacy alias: `SWANLAB_PROJ_NAME`)                               |
-| `SWANLAB_EXPERIMENT_NAME`        | Experiment name (legacy alias: `SWANLAB_EXP_NAME`)                             |
-| `SWANLAB_EXPERIMENT_GROUP`       | Group name for associating experiments (legacy alias: `SWANLAB_GROUP`)         |
-| `SWANLAB_EXPERIMENT_JOB_TYPE`    | Role label, e.g. `"train"`, `"worker"` (legacy alias: `SWANLAB_JOB_TYPE`)      |
-| `SWANLAB_EXPERIMENT_TAGS`        | Comma-separated tags, e.g. `"ddp,resnet50"` (legacy alias: `SWANLAB_TAGS`)     |
-| `SWANLAB_EXPERIMENT_DESCRIPTION` | Experiment description (legacy alias: `SWANLAB_DESCRIPTION`)                   |
-| `SWANLAB_RUN_PARALLEL`           | Parallel mode — set to `shared` so multiple processes log to one shared run    |
+| Variable                         | Purpose                                                                     |
+| -------------------------------- | --------------------------------------------------------------------------- |
+| `SWANLAB_PROJECT_NAME`           | Project name (legacy alias: `SWANLAB_PROJ_NAME`)                            |
+| `SWANLAB_EXPERIMENT_NAME`        | Experiment name (legacy alias: `SWANLAB_EXP_NAME`)                          |
+| `SWANLAB_EXPERIMENT_GROUP`       | Group name for associating experiments (legacy alias: `SWANLAB_GROUP`)      |
+| `SWANLAB_EXPERIMENT_JOB_TYPE`    | Role label, e.g. `"train"`, `"worker"` (legacy alias: `SWANLAB_JOB_TYPE`)   |
+| `SWANLAB_EXPERIMENT_TAGS`        | Comma-separated tags, e.g. `"ddp,resnet50"` (legacy alias: `SWANLAB_TAGS`)  |
+| `SWANLAB_EXPERIMENT_DESCRIPTION` | Experiment description (legacy alias: `SWANLAB_DESCRIPTION`)                |
+| `SWANLAB_RUN_PARALLEL`           | Parallel mode — set to `shared` so multiple processes log to one shared run |
 
 > The nested-style names above require SDK ≥ 0.8.0. The legacy aliases still work for
 > backward compatibility; when both are set, the nested-style name takes precedence.
