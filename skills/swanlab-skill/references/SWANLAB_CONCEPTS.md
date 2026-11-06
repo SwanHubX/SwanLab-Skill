@@ -44,6 +44,7 @@ User (authenticated account)
 |   |   |   +-- Column (a metric definition — e.g. "loss", "acc", "image")
 |   |   |   |   +-- Scalar Metrics (time-series numeric data)
 |   |   |   |   +-- Media Metrics (images, audio, video, molecules, etc.)
+|   |   |   |   +-- Histogram Metrics (binned distributions per step)
 |   |   |   +-- Console Logs (captured stdout/stderr output)
 |   |   |   +-- Profile (metadata: config, requirements, conda, hardware)
 ```
@@ -57,7 +58,7 @@ User (authenticated account)
 | **Project**          | `username/project_name` (path)        | Groups related experiments. Has visibility (`PUBLIC` / `PRIVATE`), description, labels.                          |
 | **Experiment (Run)** | `username/project_name/run_id` (path) | The atomic unit — one execution of training code. Created by `swanlab.init()`. Has state, config, metrics, logs. |
 | **Column**           | `key` within an experiment            | A metric definition. Belongs to either `CUSTOM` (user-defined) or `SYSTEM` (auto-collected). Has a data type.    |
-| **Metric**           | queried via column key                | The actual time-series data for a column. Three categories: Scalar, Media, Log.                                  |
+| **Metric**           | queried via column key                | The actual time-series data for a column. Four categories: Scalar, Media, Histogram, Log.                        |
 
 ---
 
@@ -86,19 +87,20 @@ An experiment (run) is always in one of these states:
 
 ### Column Data Types
 
-| Type       | Category | Description                         |
-| ---------- | -------- | ----------------------------------- |
-| `FLOAT`    | Scalar   | Floating-point numeric values       |
-| `BOOLEAN`  | Scalar   | True/false values                   |
-| `STRING`   | Scalar   | Text values                         |
-| `IMAGE`    | Media    | Image files (PNG, JPG, etc.)        |
-| `AUDIO`    | Media    | Audio files                         |
-| `VIDEO`    | Media    | Video files                         |
-| `OBJECT3D` | Media    | 3D point cloud data (JSON)          |
-| `MOLECULE` | Media    | Biochemical molecule structures     |
-| `ECHARTS`  | Media    | Custom chart configurations (JS/TS) |
-| `TABLE`    | Media    | Tabular data                        |
-| `TEXT`     | Media    | Rich text content                   |
+| Type        | Category  | Description                                                |
+| ----------- | --------- | ---------------------------------------------------------- |
+| `FLOAT`     | Scalar    | Floating-point numeric values                              |
+| `BOOLEAN`   | Scalar    | True/false values                                          |
+| `STRING`    | Scalar    | Text values                                                |
+| `IMAGE`     | Media     | Image files (PNG, JPG, etc.)                               |
+| `AUDIO`     | Media     | Audio files                                                |
+| `VIDEO`     | Media     | Video files                                                |
+| `OBJECT3D`  | Media     | 3D point cloud data (JSON)                                 |
+| `MOLECULE`  | Media     | Biochemical molecule structures                            |
+| `ECHARTS`   | Media     | Custom chart configurations (JS/TS)                        |
+| `TABLE`     | Media     | Tabular data                                               |
+| `TEXT`      | Media     | Rich text content                                          |
+| `HISTOGRAM` | Histogram | Binned distribution snapshots (per-bin counts + bin edges) |
 
 ### Project Visibility
 
@@ -151,7 +153,7 @@ username/project_name/run_id    → Experiment
 
 ---
 
-## Three Metric Categories
+## Four Metric Categories
 
 Understanding which metric type to query is critical for answering "where's my data?":
 
@@ -264,6 +266,39 @@ Structure:
 ```
 
 **Step-based**: Media is retrieved one step at a time by default (`--step N`). Use `--all` to fetch all steps.
+
+### Histogram Metrics (e.g. gradients, weights)
+
+Distribution snapshots: each point is a whole binned distribution at one step, not a single number. The x axis is always `step`.
+
+```
+Structure per data point:
+{
+  "step": 0,
+  "timestamp": 1715769600000,
+  "values": [3, 12, 5],            // sample count per bin
+  "bins": [-1.0, -0.3, 0.4, 1.0]  // len(values) + 1 bin edges
+}
+```
+
+Full response structure (SDK `Experiment.histograms()` / CLI `run histograms`; CLI wraps it in `{"ok", "errmsg", "data"}`):
+
+```
+{
+  "keys": ["grad"],
+  "metricType": "HISTOGRAM",
+  "list": [
+    {
+      "key": "grad",
+      "metrics": [ { "step": 0, "timestamp": 1715769600000, "values": [3, 12, 5], "bins": [-1.0, -0.3, 0.4, 1.0] }, ... ]
+    }
+  ]
+}
+```
+
+- **Sampling only**: the server picks at most `sample` snapshots per key (default and max 1500). There is no full-resolution mode and no per-key aggregates (`min` / `max` / `avg` / `median`) — unlike scalars.
+- **Range filter is step-only**: `start` / `end` bounds in step units. `head` / `tail` / `last` and value-based filtering do not apply, and there is no custom x axis.
+- `values[i]` counts the samples falling in bin `i`; `len(bins) == len(values) + 1`.
 
 ### Console Logs
 
