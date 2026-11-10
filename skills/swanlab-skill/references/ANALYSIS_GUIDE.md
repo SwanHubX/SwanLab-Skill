@@ -22,16 +22,17 @@ run info → run series → branch by intent
    - Environment: `profile.metadata` (`command`, `git_info`, `gpu`, `swanlab.version`).
    - Duration = `finished_at` − `created_at`.
    - **Trust config over run name** — names are free-text and can contradict config.
-2. **`run series PATH`** — discover metric keys (`--class system` for hardware, `--type media` for media).
+2. **`run series PATH`** — discover metric keys (`--class system` for hardware, `--type media` for media, `--type histogram` for parameter distributions).
 3. **Branch by intent**:
 
-| Intent                                | Next step                                                   |
-| ------------------------------------- | ----------------------------------------------------------- |
-| Quick conclusion / final numbers      | `run summary` (latest + min/max/avg per key, one call)      |
-| Curve shape, convergence, overfitting | `run metrics --keys k1,k2 --save` → plot (see below)        |
-| State `CRASHED` / suspicious          | `run logs --level ERROR` first; bulk-read via `export-logs` |
-| A step range or tail                  | `run metrics` with `--range-start/--range-end/--range-tail` |
-| Logged images/audio/text              | `run medias --keys KEY --step N`                            |
+| Intent                                       | Next step                                                                  |
+| -------------------------------------------- | -------------------------------------------------------------------------- |
+| Quick conclusion / final numbers             | `run summary` (latest + min/max/avg per key, one call)                     |
+| Curve shape, convergence, overfitting        | `run metrics --keys k1,k2 --save` → plot (see below)                       |
+| State `CRASHED` / suspicious                 | `run logs --level ERROR` first; bulk-read via `export-logs`                |
+| A step range or tail                         | `run metrics` with `--range-start/--range-end/--range-tail`                |
+| Gradient / weight / activation distributions | `run histograms --keys KEY` (step-bounded via `--range-start/--range-end`) |
+| Logged images/audio/text                     | `run medias --keys KEY --step N`                                           |
 
 ---
 

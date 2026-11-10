@@ -15,6 +15,7 @@ Read `references/SWANLAB_CONCEPTS.md` when you need to understand the data model
 | `run series`                                   | **Added in SDK `0.9.0`.** The recommended way to list an experiment's metric keys.                                                                                                  |
 | `run column` / `run columns`                   | **Deprecated since SDK `0.9.0` (multi-view version).** Not applicable to multi-view experiments — use `run series` instead. Only use these for legacy experiments on SDK `< 0.9.0`. |
 | `run metrics --x-axis` / `--range-type custom` | **Added after SDK `0.10.0`.** Not available in `0.10.0` or earlier — upgrade the SDK if these options are unrecognized.                                                             |
+| `run histograms`                               | **Added after SDK `0.10.4`.** Not available in `0.10.4` or earlier — upgrade the SDK if the command is unrecognized.                                                                |
 | All other commands                             | No version restriction.                                                                                                                                                             |
 
 When the installed SDK is `< 0.9.0`, `run series` does not exist — fall back to `run columns` for key discovery.
@@ -200,7 +201,7 @@ swanlab api run series PATH [OPTIONS]
 
 | Option     | Short | Default  | Description                                                                     |
 | ---------- | ----- | -------- | ------------------------------------------------------------------------------- |
-| `--type`   |       | `scalar` | Metric type: `scalar` or `media`                                                |
+| `--type`   |       | `scalar` | Metric type: `scalar`, `media`, or `histogram`                                  |
 | `--class`  |       | `custom` | Metric class: `custom` or `system` (see `SWANLAB_CONCEPTS.md > Column Classes`) |
 | `--search` |       | none     | Fuzzy search keyword (case-insensitive substring match on key names)            |
 | `--save`   |       | off      | Save output to file                                                             |
@@ -219,6 +220,9 @@ swanlab api run series user/project/run_id --class system
 
 # Media metric keys
 swanlab api run series user/project/run_id --type media
+
+# Histogram metric keys (parameter distributions)
+swanlab api run series user/project/run_id --type histogram
 ```
 
 #### `swanlab api run columns PATH`
@@ -377,6 +381,46 @@ swanlab api run medias PATH --keys KEYS [OPTIONS]
 | `--all`  |       | false      | Fetch all steps                                |
 | `--save` |       | off        | Save output to file                            |
 
+#### `swanlab api run histograms PATH --keys KEYS`
+
+Get histogram (parameter distribution) metrics. Each point is one distribution snapshot: `values` holds per-bin counts and `bins` the matching `N+1` bin edges; the x axis is always `step`. See `SWANLAB_CONCEPTS.md > Histogram Metrics` for the response structure.
+
+```bash
+swanlab api run histograms PATH --keys KEYS [OPTIONS]
+```
+
+| Argument | Required | Description                                              |
+| -------- | -------- | -------------------------------------------------------- |
+| `PATH`   | yes      | Experiment path in `username/project_name/run_id` format |
+
+| Option               | Short | Default    | Description                                                                        |
+| -------------------- | ----- | ---------- | ---------------------------------------------------------------------------------- |
+| `--keys`             |       | (required) | Comma-separated histogram keys, e.g. `grad,weight`                                 |
+| `--sample`           | `-s`  | 1500       | Max snapshots per key (max 1500), picked server-side over steps                    |
+| `--range-start`      |       | none       | Lower bound (inclusive) on `step`, non-negative integer; omit or `0` for unbounded |
+| `--range-end`        |       | none       | Upper bound (inclusive) on `step`, non-negative integer; omit or `0` for unbounded |
+| `--ignore-timestamp` |       | false      | Strip timestamps from snapshot data                                                |
+| `--save`             |       | off        | Save output to file                                                                |
+
+**Notes:**
+
+- Sampling only — there is no `--all` full-resolution mode and no aggregate statistics (`min`/`max`/`avg`/`median`). Each key returns at most `sample` snapshots.
+- Range filtering is step-only: `--range-head` / `--range-tail` / `--range-last` and `--range-type` do not apply.
+- `--range-start` must be ≤ `--range-end`.
+
+**Quick examples:**
+
+```bash
+# Up to 1500 snapshots for one key
+swanlab api run histograms PATH --keys grad
+
+# Multiple keys, up to 500 snapshots each
+swanlab api run histograms PATH --keys grad,weight -s 500
+
+# Only snapshots with step in [0, 500]
+swanlab api run histograms PATH --keys grad --range-start 0 --range-end 500
+```
+
 #### `swanlab api run logs PATH`
 
 Get console logs captured during a run. See `SWANLAB_CONCEPTS.md > Console Logs` for shard-based pagination details.
@@ -513,7 +557,7 @@ See `SWANLAB_CONCEPTS.md > Instances, Hosts & Credentials` for the full multi-in
 ## Behavioral Constraints
 
 - **Use `--all` only when the user explicitly asks for it.** This flag bypasses pagination and fetches the entire dataset in one go, which puts heavy load on the database. For paginated list commands, always use default pagination (`--page_num` / `--page_size`). Only add `--all` when the user says something like "fetch all", "get everything", or "I want the complete list".
-- **Always ask the user for specific metric keys before running `run metrics` or `run medias`.** These commands accept a `--keys` parameter. Querying without a specific key forces the server to scan and return data for all metrics, which is expensive. If the user doesn't know the key names, first run `run series PATH` to list available keys, then use the returned keys for targeted queries. Always discover key names from `run series` output before querying specific metrics. (On SDK `< 0.9.0` where `run series` does not exist, fall back to `run columns PATH`.)
+- **Always ask the user for specific metric keys before running `run metrics`, `run medias`, or `run histograms`.** These commands accept a `--keys` parameter. Querying without a specific key forces the server to scan and return data for all metrics, which is expensive. If the user doesn't know the key names, first run `run series PATH` to list available keys, then use the returned keys for targeted queries. Always discover key names from `run series` output before querying specific metrics. (On SDK `< 0.9.0` where `run series` does not exist, fall back to `run columns PATH`.)
 - **Always add `--ignore-timestamp` for `run metrics` and `run logs`.** Unless the user specifically asks to keep timestamps, include this flag by default. It produces cleaner, more readable output by removing Unix timestamps from every data point.
 - All output is JSON to stdout. Pipe to `jq` or similar tools for further processing.
 - `--save` without a filename auto-generates `swanlab-YYYYMMDD_HHMMSS-xxxx.json` in the current directory.

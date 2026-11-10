@@ -1,11 +1,11 @@
 ---
 name: swanlab-skill
 metadata:
-  version: "0.3.1"
+  version: "0.3.2"
 description: >
   Interact with SwanLab — both writing tracking code (init/log/finish/multimedia) and querying
   experiment data via CLI (`swanlab api`). Use this skill when the user wants to write training
-  tracking code, log metrics or media, manage experiments, inspect metrics/logs/keys, list
+  tracking code, log metrics or media, manage experiments, inspect metrics/histograms/logs/keys, list
   projects/runs, filter experiments, manage self-hosted users, automate queries via CLI, or
   mentions "swanlab", "experiment tracking", "log metrics", "swanlab api", "swanlab cli".
 ---
@@ -15,7 +15,7 @@ description: >
 SwanLab is an AI training experiment tracking platform. This skill covers two usage patterns:
 
 - **Writing tracking code** — use the Python SDK (`swanlab.init`, `swanlab.log`, `swanlab.finish`, media helpers)
-- **Reading experiment data** — use the `swanlab api` CLI to query metrics, logs, summaries, media, etc.
+- **Reading experiment data** — use the `swanlab api` CLI to query metrics, histograms, logs, summaries, media, etc.
 
 ---
 
@@ -90,6 +90,7 @@ CLI commands use `username/project_name` (project) or `username/project_name/run
 | "track my training" / "log metrics"              | Write tracking code      | `SDK_QUICKSTART.md`                       |
 | "log images/audio/text"                          | Log media data           | `SDK_QUICKSTART.md`                       |
 | "my loss curve" / "experiment metrics"           | Query scalar data        | `CLI_REFERENCE.md > run metrics`          |
+| "gradient" / "weight distribution" / "histogram" | Distribution snapshots   | `CLI_REFERENCE.md > run histograms`       |
 | "filter experiments"                             | Query by conditions      | `CLI_REFERENCE.md > run filter`           |
 | "my experiments" / "list runs"                   | List experiments         | `CLI_REFERENCE.md > run list`             |
 | "compare runs visually"                          | Cross-experiment chart   | `scripts/runs_benchmark.py`               |
@@ -147,7 +148,7 @@ swanlab verify --local
 See `CLI_REFERENCE.md > Behavioral Constraints` for the full list. Key rules:
 
 - **Use `--all` only when the user explicitly asks for it** (e.g. "fetch all", "get everything", "complete list"). For paginated list commands, always use default pagination (`--page_num` / `--page_size`).
-- **Always ask for specific metric keys before running `run metrics` or `run medias`.** If the user doesn't know the key names, first run `run series PATH` to discover them (`run columns PATH` only as a fallback on SDK `< 0.9.0`).
+- **Always ask for specific metric keys before running `run metrics`, `run medias`, or `run histograms`.** If the user doesn't know the key names, first run `run series PATH` to discover them (`run columns PATH` only as a fallback on SDK `< 0.9.0`).
 - **Always persist large metric data to file via `--save`**, then visualize with `scripts/plot_metrics.py --data file.json` or use `run summary` for aggregate stats.
 
 ---
